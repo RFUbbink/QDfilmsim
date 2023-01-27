@@ -1,0 +1,66 @@
+ #commented out lines or empty lines will be ignored. Add comments on separate lines, not after the numbers.
+
+#(0=default, 1=xcont, 2=RI, 3=discontinuous, 4=GMOxidation, 5=DisOxGM, 6=NoQDFilm)
+Run mode 					= 0
+#(0=IV-curve (default), 1=current-time)
+Scan mode					= 0
+
+#spacetime parameters
+QD film thickness (m)				= 700e-9 
+#REF electrode position does not matter in discontinuous setup, as it is determined in the code
+Position of reference electrode (m)		= 1e-2
+Echem cell thickness (m)			= 1e-4
+#As of now, the amount of cells in the simulation is set at compile-time, so changing this value does nothing.
+Amount of cells in the simulation (unitless)	= 490
+Area of the working electrode (m2)		= 1e-4
+Area of the counter electrode (m2)		= 1e-4
+time step size (s)				= 2e-8
+#scan characteristics (cyclic voltammetry)
+Starting voltage (V) 				= -1e-3
+Stopping voltage (V)				= -1.0
+#(default = Vstart -45*increment. Set 0 for default):
+state recording voltage (IV curves, V)		= -0.7
+Scan rate (V/s)					= 1
+Voltage increments (V)				= 1e-3
+
+#scan characteristics (current/time)
+Applied bias (V)				= -0.8
+runtime (s)					= 1
+
+#mobilities of the carriers in m2V-1s-1 
+Electron mobility 				= 3e-10
+Cation mobility in film				= 3.5e-12
+Cation mobility in solution			= 5e-10
+Anion mobility in film				= 3.5e-12
+Anion mobility in solution			= 5e-10
+
+#misc characteristics
+QD concentration (m-3)				= 1.2e25
+#0.1M
+Ion concentration in solution (m-3)		= 6e25
+Fraction of space filled by QDs			= 0.50
+Temperature (K)					= 300
+#Careful with these! A large difference between the 2 can introduce instability
+Relative dielectric constant QD film 		= 10
+Relative dielectric constant solution		= 37
+
+#band characteristics.
+LUMO (eV vs vacuum)				= -4.3
+#LUMO also used as E0 when No QD Film is selected and for B-V kinetics but then compared to NEWF
+Negative electrode work function (eV vs vacuum) = -4.7
+
+#optional characteristics:
+contaminant mobility 				= 1e-9
+contaminant concentration			= 6e23
+#(for no limit set to > 1e28):
+maximum electron concentration 			= 1e28
+maximum ion concentration 			= 1e28
+
+#reaction kinetics:
+k1 						= 1e-5
+E1 						= 0
+k2 						= 0
+E2						= -0.1
+maximum trap concentration 			= 1e24
+#reaction constants k are in units of "per second"
+
