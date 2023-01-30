@@ -24,22 +24,7 @@
     <ClCompile Include="Config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Xcontamination.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RIreaction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Discontinuous.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OxidationGM.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DisXcon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DisOxGM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NoFilm.cpp">
@@ -53,22 +38,7 @@
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Xcontamination.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RIreaction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Discontinuous.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OxidationGM.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DisXcon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DisOxGM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NoFilm.h">

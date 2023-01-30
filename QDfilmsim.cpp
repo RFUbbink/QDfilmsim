@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 	std::string saveDirectory(configLocation); //If no save directory is provided, default to saving at the config location. 
 	if (argv[1])
 		saveDirectory = std::string(argv[1]); //If save directory is provided, select it. 
-
+	std::cout << saveDirectory << '\n';
 	if (scanmode == ScanMode::m_IVcurve) //Select the operating mode
 	{
 		switch (mode) //Select the right object type
