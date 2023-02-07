@@ -17,11 +17,7 @@ using array_type = std::vector<std::vector<double>>;
 enum class Mode //For the program to know which mode it should take. Each mode has a corresponding class
 {
 	m_standard,
-	m_xcontamination,
-	m_rireaction,
 	m_discontinuous,
-	m_oxidationGM,
-	m_DisOxGM,
 	m_NoQDFilm,
 };
 
@@ -60,15 +56,6 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	s_epsilonrSolution,
 	s_LUMO,
 	s_negativeElectrodeWF,
-	s_contaminantMobility,
-	s_sontaminantConcentration,
-	s_maximumElectronConcentration,
-	s_maximumIonConcentration,
-	s_k1,
-	s_E1,
-	s_k2,
-	s_E2,
-	s_maxTrapConcentration,
 	max_settings
 };
 

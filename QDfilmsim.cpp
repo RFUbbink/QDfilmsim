@@ -14,12 +14,7 @@ I will take you through the main function in comments.
 #include <fstream>
 #include <string>
 #include "Electrochemistry.h"
-#include "Xcontamination.h"
-#include "RIreaction.h"
 #include "Discontinuous.h"
-#include "DisXcon.h"
-#include "OxidationGM.h"
-#include "DisOxGM.h"
 #include "NoFilm.h"
 #include "Config.h"
 
@@ -146,7 +141,7 @@ void runIV(T& cell, std::string saveDirectory)
 			std::ofstream crashf{ saveDirectory + "\\crashfile.csv", std::ios::trunc };
 			cell.midSave(crashf);
 		}
-		outf << settings[s_startVoltage] - settings[s_voltageIncrement]* ((V < (numberOfSteps / 2)) ? V : (numberOfSteps - V)) << '\t' << current / cyclesPerIncr << '\t' << cell.getLeakCurrent()  << '\t' << cell.getVoltage() << '\n';
+		outf << settings[s_startVoltage] - settings[s_voltageIncrement]* ((V < (numberOfSteps / 2)) ? V : (numberOfSteps - V)) << '\t' << current / cyclesPerIncr << '\n';
 
 		std::cout << V << '\n'; //report to console the amount of steps taken
 
@@ -291,70 +286,10 @@ int main(int argc, char* argv[])
 			runIV<Cell>(cell, saveDirectory);
 			break;
 		}
-		case Mode::m_xcontamination:
-		{
-			Xcontamination xcontamination{ settings };
-			Cell& cell{ xcontamination }; //Ready to go, lets start the loop!
-			runIV<Cell>(cell, saveDirectory);
-			break;
-		}
-		case Mode::m_rireaction:
-		{
-			RIreaction rireaction{ settings };
-			Cell& cell{ rireaction }; //Ready to go, lets start the loop!
-			runIV<Cell>(cell, saveDirectory);
-			break;
-		}
 		case Mode::m_discontinuous:
 		{
 			DisCell discontinuous{ settings };//Ready to go, lets start the loop!
 			runIV<DisCell>(discontinuous, saveDirectory);
-			break;
-		}
-		case Mode::m_oxidationGM:
-		{
-			DOS_array RR{};
-			std::ifstream RRFile(configLocation + "ReactionRates.csv");
-			if (RRFile.is_open())
-			{
-				DOS_array::size_type index{ 0 };
-				while (RRFile)
-				{
-					RRFile >> RR[index++];	
-				}
-			}
-
-			else
-			{
-				std::cerr << "ReactionRates.csv could not be opened for writing.\n";
-				return 1;
-			}
-			OxidationGM oxidationGM{ settings, RR };//Ready to go, lets start the loop!
-			Cell& cell{ oxidationGM };
-			runIV<Cell>(cell, saveDirectory);
-			break;
-		}
-		case Mode::m_DisOxGM:
-		{
-			DOS_array RR{};
-			std::ifstream RRFile(configLocation + "ReactionRates.csv");
-			if (RRFile.is_open())
-			{
-				DOS_array::size_type index{ 0 };
-				while (RRFile)
-				{
-					RRFile >> RR[index++];
-				}
-			}
-
-			else
-			{
-				std::cerr << "ReactionRates.csv could not be opened for writing.\n";
-				return 1;
-			}
-			DisOxGM disOxGM{ settings, RR};//Ready to go, lets start the loop!
-			DisCell& discell{ disOxGM };
-			runIV<DisCell>(discell, saveDirectory);
 			break;
 		}
 		case Mode::m_NoQDFilm:
@@ -374,21 +309,6 @@ int main(int argc, char* argv[])
 		{
 			settings[s_startVoltage] = settings[s_appliedBias];
 			Cell cell{ settings };
-			runCurrentTime<Cell>(cell, saveDirectory);
-			break;
-		}
-		case Mode::m_xcontamination:
-		{
-			settings[s_startVoltage] = settings[s_appliedBias];
-			Xcontamination xcontamination{ settings };
-			Cell& cell{ xcontamination }; //Ready to go, lets start the loop!
-			runCurrentTime<Cell>(cell, saveDirectory);
-			break;
-		}
-		case Mode::m_rireaction:
-		{
-			RIreaction rireaction{ settings };
-			Cell& cell{ rireaction }; //Ready to go, lets start the loop!
 			runCurrentTime<Cell>(cell, saveDirectory);
 			break;
 		}
