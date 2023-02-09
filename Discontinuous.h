@@ -34,7 +34,6 @@ protected: //all the constants here are calculated from the config upon initiali
 	double m_currentCumulative{};							//The amount of electrons that entered the film since the last time it was reported
 	double m_leakCurrentCumulative{};						//same for the leak electrons, not used that much
 	const double m_voltageIncrement{};						//amount the voltage is incremented every voltage step
-	double m_maximumIonConcentration{};						//Not used anymore
 	double m_saltConcentration{};							//concentration of cation and anions in the electrolyte solution at the start. 
 
 	//space
@@ -85,7 +84,7 @@ public:
 
 	virtual void injectElectrons(const DOS_array& DOS);
 	virtual void calculatePotentialProfile();
-	virtual void initializeConcentrations(double contaminantConcentration);
+	virtual void initializeConcentrations();
 	inline double negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);
 	inline double negativeCurrente(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);
 	inline double positiveCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);

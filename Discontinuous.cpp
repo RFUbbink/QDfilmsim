@@ -18,7 +18,6 @@ DisCell::DisCell(settings_array& settings) //initialize all the constants necess
 	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_workingElectrodeArea]
 						/ settings[s_counterElectrodeArea] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
 	m_voltageIncrement{ settings[s_voltageIncrement] },
-	m_maximumIonConcentration{ settings[s_maximumIonConcentration] },
 	m_saltConcentration{ settings[s_ionConcentration] },
 	m_interfacePoint{ static_cast<array_type::size_type>(30) },
 	m_referencePoint{ static_cast<array_type::size_type>(m_size-200) },
@@ -174,7 +173,7 @@ void DisCell::calculatePotentialProfile()
 	}
 }
 
-void DisCell::initializeConcentrations(double contaminantConcentration)
+void DisCell::initializeConcentrations()
 {
 	std::cout << "Electron averaging on!\nSlow mobility near interface on!\n";
 	//fills the concentration array with cations and anions
@@ -189,7 +188,6 @@ void DisCell::initializeConcentrations(double contaminantConcentration)
 		m_concentrations[carrier_cations][i] = m_saltConcentration;
 		m_concentrations[carrier_anions][i] = m_saltConcentration;
 	}
-	contaminantConcentration;
 
 	m_concentrations[carrier_electrons][0] = 1;
 	m_concentrations[carrier_electrons][1] = 1;

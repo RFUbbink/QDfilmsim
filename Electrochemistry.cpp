@@ -19,7 +19,6 @@ Cell::Cell(settings_array& settings) //initialize all the constants necessary fo
 	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_workingElectrodeArea]
 						/ settings[s_counterElectrodeArea] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
 	m_voltageIncrement{ settings[s_voltageIncrement] },
-	m_maximumIonConcentration{ settings[s_maximumIonConcentration] },
 	m_saltConcentration{ settings[s_ionConcentration] },
 	m_interfacePoint{ static_cast<array_type::size_type>(1 + static_cast<int>(m_size * settings[s_filmThickness] / settings[s_cellThickness])) },
 	m_referencePoint{ static_cast<array_type::size_type>(m_size * settings[s_refPosition] / settings[s_cellThickness]) },
@@ -144,7 +143,7 @@ void Cell::calculatePotentialProfile() //This is the most critical function in t
 	}
 }
 
-void Cell::initializeConcentrations(double contaminantConcentration)
+void Cell::initializeConcentrations()
 {
 	//fills the concentration array with cations and anions
 	for (array_type::size_type i{ 1 }; i < m_interfacePoint; ++i)
@@ -158,7 +157,6 @@ void Cell::initializeConcentrations(double contaminantConcentration)
 		m_concentrations[carrier_cations][i] = m_saltConcentration;
 		m_concentrations[carrier_anions][i] =  m_saltConcentration;
 	}
-	contaminantConcentration;
 
 	//Set the concentration of electrons to 1 (does not work for the injection function)
 	m_concentrations[carrier_electrons][0] = 1;

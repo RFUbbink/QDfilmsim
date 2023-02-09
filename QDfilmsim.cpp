@@ -208,7 +208,7 @@ void runCurrentTime(T& cell, std::string saveDirectory)
 
 	const int divisor{ static_cast<int>(numberOfSteps / resolution) };
 
-	cell.initializeConcentrations(settings[s_sontaminantConcentration]);
+	cell.initializeConcentrations();
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 

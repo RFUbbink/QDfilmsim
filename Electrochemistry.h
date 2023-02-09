@@ -28,7 +28,6 @@ protected: //all the constants here are calculated from the config upon initiali
 	double m_currentCumulative{}; //Current counter
 	double m_leakCurrentCumulative{}; 
 	const double m_voltageIncrement{}; 
-	double m_maximumIonConcentration{}; //lagacy parameter
 	double m_saltConcentration{}; //ion concentration in the electrolyte solution
 
 	//space
@@ -72,7 +71,7 @@ public:
 
 	virtual void injectElectrons(const DOS_array& DOS);
 	virtual void calculatePotentialProfile();
-	virtual void initializeConcentrations(double contaminantConcentration);
+	virtual void initializeConcentrations();
 	inline double injectionCurrent(const double concentrationElectrode, const double concentrationFilm);
 	inline double negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField);
 	inline double negativeCurrente(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField);
