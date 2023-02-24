@@ -69,7 +69,7 @@ public:
 	void resetInjection();
 	void injectElectrons(const DOS_array& DOS);
 	void calculatePotentialProfile();
-	void initializeConcentrations(double contaminantConcentration);
+	void initializeConcentrations();
 	inline double negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);
 	inline double neutralCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double eCon);
 	inline double positiveCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);

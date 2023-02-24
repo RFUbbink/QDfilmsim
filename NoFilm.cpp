@@ -19,13 +19,13 @@ NoFilmCell::NoFilmCell(settings_array& settings) //initialize all the constants 
 	:m_appliedBias{ settings[s_startVoltage] },
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
-	m_Xconcentration {settings[s_sontaminantConcentration]},
+	m_Xconcentration {settings[s_QDConcentration]},
 	m_referencePoint{ static_cast<array_type::size_type>(m_size - 245) },
 	m_referencePositionRelative{static_cast<double>(m_referencePoint -1) / static_cast<double>(m_size) },
 	m_thickness{ settings[s_cellThickness] },
 	m_dx{ settings[s_cellThickness] / m_size },
 	m_E0{ settings[s_LUMO]},
-	m_currentConstantX{ settings[s_contaminantMobility] * settings[s_dt] / m_dx },
+	m_currentConstantX{ settings[s_electronMobility] * settings[s_dt] / m_dx },
 	m_currentConstantCations{ settings[s_cationMobilitySolution] * settings[s_dt] / m_dx },
 	m_currentConstantAnions{ settings[s_anionMobilitySolution] * settings[s_dt] / m_dx },
 	//Weird quirk on where the mobility of ions is reduced when they near the interface
@@ -123,7 +123,7 @@ void NoFilmCell::calculatePotentialProfile()
 	}
 }
 
-void NoFilmCell::initializeConcentrations(double contaminantConcentration)
+void NoFilmCell::initializeConcentrations()
 {
 
 	//fills the concentration array with cations and anions
@@ -135,7 +135,7 @@ void NoFilmCell::initializeConcentrations(double contaminantConcentration)
 
 	for (array_type::size_type i{ 1 }; i < (m_size - 1); ++i)
 	{
-		m_concentrations[carrier_X][i] = contaminantConcentration;
+		m_concentrations[carrier_X][i] = m_Xconcentration;
 	}
 }
 

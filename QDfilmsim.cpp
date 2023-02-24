@@ -112,7 +112,7 @@ void runIV(T& cell, std::string saveDirectory)
 	std::string title{ saveDirectory + "\\Midfile0" };
 	int recordCounter{ 1 };
 
-	cell.initializeConcentrations(settings[s_sontaminantConcentration]); 
+	cell.initializeConcentrations(); 
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now(); //to mesure performance
 	//Here starts the main cycle. It will do voltage steps, and within them a number of time steps.

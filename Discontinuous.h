@@ -49,7 +49,6 @@ protected: //all the constants here are calculated from the config upon initiali
 
 	//band
 	const double m_injectionBarrier{};						//the injection barrier for electrons
-	const double m_densityOfStates{};						//the effective density of states for electrons in the QD film
 	const double m_LUMO{};									//LUMO of the QDs (not used as it is also in the DOS array)
 	double m_negativeElectrodeWF{};							//work function of the working electrode
 	const double m_QDFillFactor{};							//the fraction of space that is filled by QD in the film, the rest is electrolyte

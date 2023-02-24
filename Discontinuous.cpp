@@ -27,7 +27,6 @@ DisCell::DisCell(settings_array& settings) //initialize all the constants necess
 	m_dxs1{ 5e-9 }, //adapt the above and below (-etc) values together with this one to change interface resolution
 	m_dxs2{ (settings[s_cellThickness] - 300e-9 - settings[s_filmThickness]) / (m_size - m_interfacePoint - m_Isize - 1) },
 	m_injectionBarrier{ settings[s_LUMO] - settings[s_negativeElectrodeWF] },
-	m_densityOfStates{ settings[s_densityOfStates] },
 	m_LUMO{ settings[s_LUMO] },
 	m_negativeElectrodeWF{ settings[s_negativeElectrodeWF] },
 	m_QDFillFactor{ 1 - settings[s_QDspacefill] },

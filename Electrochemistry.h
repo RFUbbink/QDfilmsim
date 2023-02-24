@@ -40,7 +40,6 @@ protected: //all the constants here are calculated from the config upon initiali
 
 	//band
 	const double m_injectionBarrier{};						//the injection barrier for electrons
-	const double m_densityOfStates{};						//the effective density of states for electrons in the QD film
 	const double m_LUMO{};									//legacy constant I think, energy level of the CB edge
 	double m_negativeElectrodeWF{};							//Fermi level in the WE material = work function of that material
 	const double m_QDFillFactor{};							//the fraction of space that is filled by QD in the film, the rest is electrolyte

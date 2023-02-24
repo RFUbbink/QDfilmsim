@@ -26,7 +26,6 @@ Cell::Cell(settings_array& settings) //initialize all the constants necessary fo
 	m_thickness{ settings[s_cellThickness] },
 	m_dx{ settings[s_cellThickness] / (m_size - 1) },
 	m_injectionBarrier{ settings[s_LUMO] - settings[s_negativeElectrodeWF] },
-	m_densityOfStates{ settings[s_densityOfStates] },
 	m_LUMO{ settings[s_LUMO] },
 	m_negativeElectrodeWF{ settings[s_negativeElectrodeWF] },
 	m_QDFillFactor{ 1 - settings[s_QDspacefill] },
@@ -347,7 +346,7 @@ void Cell::changeBias(double vBiasChange) //legacy function, use the operators i
 
 Cell& Cell::operator++()
 {
-	//manage the applied bias by incrementing (potentialArray is the big one, appliedBias is also incremented just to speed up convergense in calculatePotentialProfile)
+	//manage the applied bias by incrementing (potentialArray is the big one, appliedBias is also incremented just to speed up convergence in calculatePotentialProfile)
 	m_appliedBias += m_voltageIncrement;
 	m_electrostatic[es_potential][0] += m_voltageIncrement;
 	return *this;
@@ -355,7 +354,7 @@ Cell& Cell::operator++()
 
 Cell& Cell::operator--()
 {
-	//manage the applied bias by incrementing (potentialArray is the big one, appliedBias is also incremented just to speed up convergense in calculatePotentialProfile)
+	//manage the applied bias by incrementing (potentialArray is the big one, appliedBias is also incremented just to speed up convergence in calculatePotentialProfile)
 	m_appliedBias -= m_voltageIncrement;
 	m_electrostatic[es_potential][0] -= m_voltageIncrement;
 	return *this;

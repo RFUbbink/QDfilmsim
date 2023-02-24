@@ -48,7 +48,7 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	s_cationMobilitySolution,
 	s_anionMobilityFilm,
 	s_anionMobilitySolution,
-	s_densityOfStates,
+	s_QDConcentration,
 	s_ionConcentration,
 	s_QDspacefill,
 	s_temperature,
