@@ -8,5 +8,5 @@ Executable needs a config file in the working directory (Config.txt; example fil
 Altering anything else than the numbers after the '=' sign may cause crashes, as the parsing algorithm is very primitive. 
 Executable also needs a density of states function file (DOS.csv; example file included) in the working directory. 
 Python script DOSdrawer.py can be used to produce a DOS file in the correct formatting. Alter the functions to adjust the DOS output.
-Executable will output 'outputcpp.csv', containing the CV or time/current data.
+Executable will output 'outputcpp.csv', containing the CV or time/current data and 'Endfile.csv, containing the entire final state of the simulation.
 Executable will also output 'Midfile#.csv' after every 0.1 V has passed in a CV. This file contains the entire state of the simulation, including currents, potential and concentrations.
