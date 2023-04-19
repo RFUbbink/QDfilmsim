@@ -37,8 +37,8 @@ protected: //all the constants here are calculated from the config upon initiali
 	double m_saltConcentration{};							//concentration of cation and anions in the electrolyte solution at the start. 
 
 	//space
-	static const array_type::size_type m_size{ precompiled::amountOfCells }; 	//the size of the cell array
-	static const array_type::size_type m_Isize{ precompiled::InterfaceCells }; 	//the size of the interface
+	const array_type::size_type m_size{}; 					//the size of the cell array
+	const array_type::size_type m_Isize{}; 					//the size of the interface
 	const array_type::size_type m_interfacePoint{};			//the position of the film/solution interface in the array
 	const array_type::size_type m_referencePoint{};			//the position of the refernce electrode in the array
 	const double m_referencePositionRelative{};				//reference postion/cellthickness, used in potential calculation

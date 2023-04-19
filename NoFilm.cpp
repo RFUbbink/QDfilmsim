@@ -1,5 +1,3 @@
-
-
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -19,7 +17,7 @@ NoFilmCell::NoFilmCell(settings_array& settings) //initialize all the constants 
 	:m_appliedBias{ settings[s_startVoltage] },
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
-	m_Xconcentration {settings[s_QDConcentration]},
+	m_Xconcentration {settings[s_redoxSpeciesConcentration]},
 	m_referencePoint{ static_cast<array_type::size_type>(m_size - 245) },
 	m_referencePositionRelative{static_cast<double>(m_referencePoint -1) / static_cast<double>(m_size) },
 	m_thickness{ settings[s_cellThickness] },

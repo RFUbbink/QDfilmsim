@@ -33,12 +33,10 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	s_refPosition,
 	s_cellThickness,
 	s_amountOfCells,
-	s_workingElectrodeArea,
-	s_counterElectrodeArea,
+	s_amountofInterfaceCells,
 	s_dt,
 	s_startVoltage,
 	s_stopVoltage,
-	s_recordingVoltage,
 	s_scanRate,
 	s_voltageIncrement,
 	s_appliedBias,
@@ -48,7 +46,7 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	s_cationMobilitySolution,
 	s_anionMobilityFilm,
 	s_anionMobilitySolution,
-	s_QDConcentration,
+	s_redoxSpeciesConcentration,
 	s_ionConcentration,
 	s_QDspacefill,
 	s_temperature,
@@ -58,12 +56,6 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	s_negativeElectrodeWF,
 	max_settings
 };
-
-namespace precompiled
-{
-	inline constexpr int	amountOfCells{ 490 };			//amount of cells in the EC cell, this is precompiled because of legacy, but could easily not be now that I use classes etc. 
-	inline constexpr int	InterfaceCells{ 60 };			//amount of cells that define the interface region
-}
 
 namespace phys //contains all natural constants, access through phys::
 {

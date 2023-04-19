@@ -16,8 +16,8 @@ using array_type = std::vector<std::vector<double>>;
 
 Cell::Cell(settings_array& settings) //initialize all the constants necessary for operation, using settings array
 //an estimation of the initial voltage drop over the counterelectrode is made to calculate the initial appliedBias.
-	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_workingElectrodeArea]
-						/ settings[s_counterElectrodeArea] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
+	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
+	m_size{settings[s_amountOfCells]},
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
 	m_interfacePoint{ static_cast<array_type::size_type>(1 + static_cast<int>(m_size * settings[s_filmThickness] / settings[s_cellThickness])) },
@@ -162,11 +162,6 @@ void Cell::initializeConcentrations()
 	m_concentrations[carrier_electrons][1] = 1;
 }
 
-inline double Cell::injectionCurrent(const double concentrationElectrode, const double concentrationFilm)//legacy function
-{
-	return 0.001 * (concentrationElectrode - concentrationFilm);
-}
-
 inline double Cell::negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField)
 {
 	//returns the amount of negatively charged particles moving to the right cell per m3 per timestep, based on drift/diffusion
@@ -186,30 +181,12 @@ inline double Cell::negativeCurrente(const double concentrationLeft, const doubl
 	//	return (-concentrationLeft * electricField  + m_energyConvertx * (concentrationLeft - concentrationRight)) * curCon;
 }
 
-inline double Cell::negativeCurrentmax(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double maximum)
-{
-	//returns the amount of negatively charged particles moving to the right cell per m3 per timestep, based on drift/diffusion
-	//energyConvertX (merged for speed) = k*T/q/dx
-	//curCon (merged for speed)		= mobility*dt/dx
-	double current{ (-concentrationLeft * electricField + m_energyConvertx * (concentrationLeft - concentrationRight)) * curCon };
-	return ((current < maximum) ? current : maximum);
-}
-
 inline double Cell::positiveCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField)
 {
 	//returns the amount of positively charged particles moving to the right cell per m3 per timestep, based on drift/diffusion
 	//energyConvertX (merged for speed) = k*T/q/dx
 	//curCon (merged for speed)		= mobility*dt/dx
 	return (concentrationRight * electricField + m_energyConvertx * (concentrationLeft - concentrationRight)) * curCon;
-}
-
-inline double Cell::positiveCurrentmax(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double maximum)
-{
-	//returns the amount of negatively charged particles moving to the right cell per m3 per timestep, based on drift/diffusion
-	//energyConvertX (merged for speed) = k*T/q/dx
-	//curCon (merged for speed)		= mobility*dt/dx
-	double current{ (concentrationRight * electricField + m_energyConvertx * (concentrationLeft - concentrationRight)) * curCon };
-	return ((-current < maximum) ? current : -maximum);
 }
 
 void Cell::calculateCurrents()

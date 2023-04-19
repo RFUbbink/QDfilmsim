@@ -15,8 +15,9 @@ using array_type = std::vector<std::vector<double>>;
 DisCell::DisCell(settings_array& settings) //initialize all the constants necessary for operation, using settings array
 //vBias is the TOTAL potential drop over the entire system == the voltage difference between the working and counter electrode
 //an estimation of the initial voltage drop over the counterelectrode is made to calculate the initial Vb.
-	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_workingElectrodeArea]
-						/ settings[s_counterElectrodeArea] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
+	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
+	m_size{ static_cast<array_type::size_type>(settings[s_amountOfCells])},
+	m_IFsize{ static_cast<array_type::size_type>(settings[s_amountofInterfaceCells])},
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
 	m_interfacePoint{ static_cast<array_type::size_type>(30) },
