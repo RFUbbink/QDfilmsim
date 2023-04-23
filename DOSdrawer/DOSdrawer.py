@@ -90,7 +90,7 @@ if __name__ == "__main__":
     #popt[0] = N0*45*2/3 #Alternatively, you can forego the fitting and use the real paramaters (this is wat is fitted really). This should give the same results if you have a pure sqrt DOS
     DOS[2] = (1/popt[0])**(2/3)*2/3 #Convert to proper unit for use in the simulator
     np.savetxt("DOS.csv", DOS, delimiter='\n')
-    
+    print("DOS file has been saved as 'DOS.csv'")
     
     #Just plotting the DOS for quick check
     fig1,ax1 = plt.subplots(1,1)
@@ -111,5 +111,6 @@ if __name__ == "__main__":
     ax2.set_xlabel("Energy above LUMO", size = '15')                              
     ax2.set_ylabel("Electron concentration (m-3)", size = '15')
     plt.legend(["Data","Fit"])
+    plt.show()
     
     
