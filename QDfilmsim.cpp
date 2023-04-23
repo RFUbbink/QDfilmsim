@@ -32,73 +32,6 @@ settings_array settings; //settings available in global space for convenience.
 DOS_array DOS;
 
 template <typename T> //Allows the multiple classes (Cell, Discell, etc. to use the same basic running functions such as runIV)
-void continueIV(T& cell, int& tries, std::string saveDirectory)
-{
-	//Kind of a legacy function that can be used to run another cv after finishing the first one. It is prone to crashing though, as it has not been tested for a lot of different initial states.
-	//See runIV for more details
-	const int cyclesPerIncr{ static_cast<int>(settings[s_voltageIncrement]
-						/ settings[s_scanRate] / settings[s_dt]) };	//the number of cycles after which the voltage is incremented
-	const int numberOfSteps{ 2 * static_cast<int>(std::abs(settings[s_stopVoltage]
-										- settings[s_startVoltage]) / settings[s_voltageIncrement]) };	//the number of steps that are taken (factor 2 for forward/backward)
-	std::vector<double> voltage(numberOfSteps);
-	std::vector<double> electronCurrent(numberOfSteps);					//array to store the current over time in			
-	std::vector<double> leakCurrent(numberOfSteps);					//array to store the current over time in			
-
-	int recordTime{ 45 };
-	if (settings[s_recordingVoltage])
-		recordTime = static_cast<int>((-settings[s_recordingVoltage] + settings[s_startVoltage]) / settings[s_voltageIncrement]);
-
-
-	for (int V{ 0 }; V < numberOfSteps; ++V)
-	{
-		for (int t{ 0 }; t < cyclesPerIncr; ++t)
-		{
-			cell.calculatePotentialProfile();
-			if (!(t % 10))
-				cell.injectElectrons(DOS);
-			cell.calculateCurrents();
-			cell.updateConcentrations();
-		}
-
-		//record current density at the end of the voltage step (converted to A/cm2) 
-		voltage[V] = cell.getVoltage();
-		electronCurrent[V] = cell.getCurrent()/cyclesPerIncr;
-		leakCurrent[V] = cell.getLeakCurrent();
-
-		std::cout << V << '\n'; //report to console the amount of steps taken
-		//manage the applied bias by incrementing
-		if (V < numberOfSteps / 2)
-			--cell;
-
-		else
-			++cell;
-
-		if (V == recordTime)
-		{
-			std::ofstream midf{ saveDirectory + "\\Midfile.csv", std::ios::trunc };
-			if (!midf)
-			{
-				std::cerr << "Midfile.csv could not be opened for writing.\n";
-				continue;
-			}
-			else
-				cell.midSave(midf);
-		}
-	}
-
-
-	std::ofstream outf{ saveDirectory + "\\IV_continued_" + std::to_string(++tries) + ".csv", std::ios::trunc };
-
-	if (!outf)
-	{
-		std::cerr << "Something went wrong in writing the results.\n";
-	}
-	else
-	{
-		currentToFile(outf, voltage, electronCurrent, leakCurrent);
-	}
-}
-template <typename T>
 void runIV(T& cell, std::string saveDirectory)
 {
 	//The main function that is important, takes the Cell object and givs it the necessary orders and does bookkeeping.
@@ -114,7 +47,7 @@ void runIV(T& cell, std::string saveDirectory)
 
 	cell.initializeConcentrations(); 
 
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now(); //to mesure performance
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now(); //to measure performance
 	//Here starts the main cycle. It will do voltage steps, and within them a number of time steps.
 	for (int V{ 0 }; V < numberOfSteps; ++V)
 	{
@@ -171,30 +104,8 @@ void runIV(T& cell, std::string saveDirectory)
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 	std::cout << "\nTime elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << '\n';
-
-	bool continueScan{false};
-
-	while (continueScan)
-	{//To ask the user for another scan
-		int tries{ 0 };
-		std::cout << "Another? [y/n]: ";
-		char input{};
-		std::cin >> input;
-		if (std::cin.fail())
-		{
-			std::cin.clear();
-			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		}
-		else if (input == 'y')
-		{
-			continueIV(cell, tries, saveDirectory);
-		}
-		else if (input == 'n')
-		{
-			continueScan = false;
-		}
-	}
 }
+
 template <typename T>
 void runCurrentTime(T& cell, std::string saveDirectory)
 {//Very similar to the runIV fucntion except that is does not increment the voltage but instead applies a constant votlage for the durration of the simulation. 

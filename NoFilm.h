@@ -39,7 +39,7 @@ protected: //all the constants here are calculated from the config upon initiali
 	double m_Xconcentration{};
 
 	//space
-	static const array_type::size_type m_size{ precompiled::amountOfCells }; 	//the size of the cell array
+	const array_type::size_type m_size{}; 	//the size of the cell array
 	const array_type::size_type m_referencePoint{};			//the position of the refernce electrode in the array
 	const double m_referencePositionRelative{};				//reference postion/cellthickness, used in potential calculation
 	const double m_thickness{};

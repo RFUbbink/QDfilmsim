@@ -18,6 +18,7 @@ NoFilmCell::NoFilmCell(settings_array& settings) //initialize all the constants 
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
 	m_Xconcentration {settings[s_redoxSpeciesConcentration]},
+	m_size{ settings[s_amountOfCells] },
 	m_referencePoint{ static_cast<array_type::size_type>(m_size - 245) },
 	m_referencePositionRelative{static_cast<double>(m_referencePoint -1) / static_cast<double>(m_size) },
 	m_thickness{ settings[s_cellThickness] },
@@ -26,12 +27,11 @@ NoFilmCell::NoFilmCell(settings_array& settings) //initialize all the constants 
 	m_currentConstantX{ settings[s_electronMobility] * settings[s_dt] / m_dx },
 	m_currentConstantCations{ settings[s_cationMobilitySolution] * settings[s_dt] / m_dx },
 	m_currentConstantAnions{ settings[s_anionMobilitySolution] * settings[s_dt] / m_dx },
-	//Weird quirk on where the mobility of ions is reduced when they near the interface
-	m_energyConvert{ phys::k * settings[s_temperature] / phys::q },
-	m_energyConvertx{ phys::k * settings[s_temperature] / phys::q / m_dx },
-	m_poissonConstantSolution{ -phys::q / phys::eps0 / settings[s_epsilonrSolution] },
-	m_currentConvert{ phys::q * m_dx / settings[s_dt] / 10000 },
-	m_Nernst{ phys::F / phys::R / settings[s_temperature]}
+	m_energyConvert{ physics::k * settings[s_temperature] / physics::q },
+	m_energyConvertx{ physics::k * settings[s_temperature] / physics::q / m_dx },
+	m_poissonConstantSolution{ -physics::q / physics::eps0 / settings[s_epsilonrSolution] },
+	m_currentConvert{ physics::q * m_dx / settings[s_dt] / 10000 },
+	m_Nernst{ physics::F / physics::R / settings[s_temperature]}
 {
 	m_electrostatic = array_type(3, std::vector<double>(m_size));		//create the potential array
 	m_electrostatic[es_potential][0] = settings[s_startVoltage];		//apply the inital bias: updated everytime there is a voltage increment.

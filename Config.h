@@ -57,14 +57,14 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	max_settings
 };
 
-namespace phys //contains all natural constants, access through phys::
+namespace physics //contains all natural constants, access through physics::
 {
-	inline constexpr double k{ 1.380649e-23 };
-	inline constexpr double eps0{ 8.854188e-12 };
-	inline constexpr double h{ 6.62607004e-34 };
-	inline constexpr double q{ 1.60217662e-19 };
-	inline constexpr double F{ 96485 };
-	inline constexpr double R{ 8.31446 };
+	constexpr double k{ 1.380649e-23 };
+	constexpr double eps0{ 8.854188e-12 };
+	constexpr double h{ 6.62607004e-34 };
+	constexpr double q{ 1.60217662e-19 };
+	constexpr double F{ 96485 };
+	constexpr double R{ 8.31446 };
 }
 
 void config(settings_array& settings, Mode& mode, ScanMode& scanmode, DOS_array& DOS,std::string configLocation);

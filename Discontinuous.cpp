@@ -16,10 +16,10 @@ DisCell::DisCell(settings_array& settings) //initialize all the constants necess
 //vBias is the TOTAL potential drop over the entire system == the voltage difference between the working and counter electrode
 //an estimation of the initial voltage drop over the counterelectrode is made to calculate the initial Vb.
 	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
-	m_size{ static_cast<array_type::size_type>(settings[s_amountOfCells])},
-	m_IFsize{ static_cast<array_type::size_type>(settings[s_amountofInterfaceCells])},
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
+	m_size{ static_cast<array_type::size_type>(settings[s_amountOfCells]) },
+	m_Isize{ static_cast<array_type::size_type>(settings[s_amountofInterfaceCells]) },
 	m_interfacePoint{ static_cast<array_type::size_type>(30) },
 	m_referencePoint{ static_cast<array_type::size_type>(m_size-200) },
 	m_referencePositionRelative{ (settings[s_cellThickness] + settings[s_filmThickness]) / 2 / settings[s_cellThickness]},
@@ -43,13 +43,13 @@ DisCell::DisCell(settings_array& settings) //initialize all the constants necess
 	m_currentConstantAnionsFilm2{ settings[s_anionMobilityFilm] * settings[s_dt] / m_dxs1 },
 	m_currentConstantAnionsSolution1{ settings[s_anionMobilityFilm] * settings[s_dt] / m_dxs1 },
 	m_currentConstantAnionsSolution2{ settings[s_anionMobilitySolution] * settings[s_dt] / m_dxs2 },
-	m_energyConvert{ phys::k * settings[s_temperature] / phys::q },
-	m_energyConvertxf{ phys::k * settings[s_temperature] / phys::q / m_dxf },
-	m_energyConvertxs1{ phys::k * settings[s_temperature] / phys::q / m_dxs1 },
-	m_energyConvertxs2{ phys::k * settings[s_temperature] / phys::q / m_dxs2 },
-	m_poissonConstantFilm{ -phys::q / phys::eps0 / settings[s_epsilonrFilm] },
-	m_poissonConstantSolution{ -phys::q / phys::eps0 / settings[s_epsilonrSolution] },
-	m_currentConvert{ phys::q * m_dxf / settings[s_dt] / 10000 }
+	m_energyConvert{ physics::k * settings[s_temperature] / physics::q },
+	m_energyConvertxf{ physics::k * settings[s_temperature] / physics::q / m_dxf },
+	m_energyConvertxs1{ physics::k * settings[s_temperature] / physics::q / m_dxs1 },
+	m_energyConvertxs2{ physics::k * settings[s_temperature] / physics::q / m_dxs2 },
+	m_poissonConstantFilm{ -physics::q / physics::eps0 / settings[s_epsilonrFilm] },
+	m_poissonConstantSolution{ -physics::q / physics::eps0 / settings[s_epsilonrSolution] },
+	m_currentConvert{ physics::q * m_dxf / settings[s_dt] / 10000 }
 {
 	m_electrostatic = array_type(3, std::vector<double>(m_size));		//create the potential array
 	m_electrostatic[es_potential][0] = settings[s_startVoltage];					//apply the inital bias: updated everytime there is a voltage increment.
@@ -206,10 +206,27 @@ inline double DisCell::negativeCurrente(const double concentrationLeft, const do
 	//returns the amount of negatively charged particles moving to the right cell per m3 per timestep, based on drift/diffusion
 	//energyConvertX (merged for speed) = k*T/q/dx
 	//curCon (merged for speed)		= mobility*dt/dx
-	//if (concentrationLeft > 1e25)
-	return (-concentrationLeft * (electricField - m_electronEnergyFactor * (concentrationLeft - concentrationRight) / pow((concentrationLeft>0) ? concentrationLeft : 1, 0.3333333333)) + eCon * (concentrationLeft - concentrationRight)) * curCon;
-	//else
-	//	return (-concentrationLeft * electricField  + m_energyConvertx * (concentrationLeft - concentrationRight)) * curCon;
+	/*
+	Fitting the electron DOS correction factor
+		This one is a doozy and it does improve the fit with experiment noticibally but not by that much
+		It works as follows :
+	1) We fill up the DOS with moreand more electrons.If there are more electrons in a certain part of the QD film, they will be in higher energy levels.
+	2) So the Fermi level in parts with more electrons lies higher, giving rise to additional force(besides normal diffusion) that pushes the electrons towards regions with less concentration.
+	3) We want to know the difference in Fermi level between each cell, so that we can easily caculate the "total" energy level of electrons(= Fermi level + electrostic potential)
+	4) We then use that total energy level instead of just the electrostatic potential level in a cell for the drift - diffusion equations
+	5) Hope you are still fowllowing this.
+	6) So we want to know the Fermi level in each cell, which we can get by integrating the DOS, but this is computationally expensive.If we need to do this for every cell every timestep, we slow down the simulation A LOT
+	7) So instead we hope to find a function that can be used to calculate the Fermi level directly from the electron concentration.
+	8) Biggest assumption : DOS function is sqrt with energy.This is almost true for ZnO, not so much for CdSe maybe but it still fits rather OK.
+	9) So then doing the math the integral of the DOS function should be a function of E ^ (3 / 2)
+	10) So electron concentration scales with E ^ (3 / 2)
+	11) And we can fit the reverse function to the electron concentration to obtain the Fermi energy
+	12) Fermi level ~electron concentration ^ (2 / 3)
+	13) What we really want is the difference between 2 energy levels though, so in the simulator, we use the differential function dE / dn ~n ^ (-1 / 3))
+	14) So you will find in the simulator that dE = fit factor * dn / n ^ (1 / 3).Which is really complicated but it is also the fastest calculation possible.
+	IF YOU FEEL THIS IS TOO COMPLICATED JUST REPLACE THE FUNCTION CALLS FOR negativeCurrente WITH THE NORMAL negativeCurrent FUNCTION!!
+	*/
+	return (-concentrationLeft * (electricField - m_electronEnergyFactor * (concentrationLeft - concentrationRight) / pow((concentrationLeft > 0) ? concentrationLeft : 1, 0.3333333333)) + eCon * (concentrationLeft - concentrationRight)) * curCon;
 }
 
 inline double DisCell::positiveCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon)
