@@ -10,6 +10,10 @@
 
 using array_type = std::vector<std::vector<double>>;
 
+//This class can be used to run a "normal" flat-electrode redox simulation (although ridiculously slow compared to other methods).
+//You would simulate an electrochemical cell with ions present as electrolyte, and 1 redox species at a certain concentration.
+//All species are in oxidized state at the start of simulation.
+//Again, many functions are the same as in Electrochemistry, so look for comments there if unclear
 
 NoFilmCell::NoFilmCell(settings_array& settings) //initialize all the constants necessary for operation, using settings array
 //vBias is the TOTAL potential drop over the entire system == the voltage difference between the working and counter electrode
@@ -18,8 +22,8 @@ NoFilmCell::NoFilmCell(settings_array& settings) //initialize all the constants 
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
 	m_Xconcentration {settings[s_redoxSpeciesConcentration]},
-	m_size{ settings[s_amountOfCells] },
-	m_referencePoint{ static_cast<array_type::size_type>(m_size - 245) },
+	m_size{ static_cast<array_type::size_type>(settings[s_amountOfCells]) },
+	m_referencePoint{ static_cast<array_type::size_type>(m_size / 2) },
 	m_referencePositionRelative{static_cast<double>(m_referencePoint -1) / static_cast<double>(m_size) },
 	m_thickness{ settings[s_cellThickness] },
 	m_dx{ settings[s_cellThickness] / m_size },
@@ -63,6 +67,9 @@ void NoFilmCell::resetInjection() {
 
 void NoFilmCell::injectElectrons(const DOS_array& DOS)
 {
+	//This function actually performs the electrochemical reaction at the electrode.
+	//Assumed is Nernstian equilibrium, reaction kinetics are neglected.
+	//It is a modified injectElectrons() from the other classes, so they can be used as same Types in the main() and runIV() functions. 
 	DOS;
 	double totalX{ m_concentrations[carrier_X][1] + m_concentrations[carrier_Xmin][1] };
 	double equilibriumRatio{ exp((m_E0 - m_electrostatic[es_potential][0] + m_electrostatic[es_potential][1]) * m_Nernst) };
@@ -130,7 +137,7 @@ void NoFilmCell::initializeConcentrations()
 		m_concentrations[carrier_cations][i] = m_saltConcentration;
 		m_concentrations[carrier_anions][i] = m_saltConcentration;
 	}
-
+	//Sets the concentration of redos species throughout the cell
 	for (array_type::size_type i{ 1 }; i < (m_size - 1); ++i)
 	{
 		m_concentrations[carrier_X][i] = m_Xconcentration;
@@ -219,7 +226,6 @@ void NoFilmCell::updateConcentrations()
 	{
 		m_concentrations[carrier_anions][i] += m_currents[carrier_anions][i] - m_currents[carrier_anions][i + 1];
 	}
-
 }
 
 NoFilmCell& NoFilmCell::operator++()

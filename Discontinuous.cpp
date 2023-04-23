@@ -10,7 +10,8 @@
 
 using array_type = std::vector<std::vector<double>>;
 
-//Member functions of Cell class:
+//This is the same class as Electrochemistry, but uses discontinuous space intervalls. 
+//Many functions are the same, so if not clear here there could be comments that clatiry them in Electrochemistry.cpp
 
 DisCell::DisCell(settings_array& settings) //initialize all the constants necessary for operation, using settings array
 //vBias is the TOTAL potential drop over the entire system == the voltage difference between the working and counter electrode
@@ -24,9 +25,9 @@ DisCell::DisCell(settings_array& settings) //initialize all the constants necess
 	m_referencePoint{ static_cast<array_type::size_type>(m_size-200) },
 	m_referencePositionRelative{ (settings[s_cellThickness] + settings[s_filmThickness]) / 2 / settings[s_cellThickness]},
 	m_thickness{ settings[s_cellThickness] },
-	m_dxf{ (settings[s_filmThickness]-25e-9) / (m_interfacePoint-5) },
-	m_dxs1{ 5e-9 }, //adapt the above and below (-etc) values together with this one to change interface resolution
-	m_dxs2{ (settings[s_cellThickness] - 300e-9 - settings[s_filmThickness]) / (m_size - m_interfacePoint - m_Isize - 1) },
+	m_dxs1{ settings[s_interfaceResolution] * 1e-9},
+	m_dxf{ (settings[s_filmThickness] - 5 * m_dxs1) / (m_interfacePoint-5) }, 
+	m_dxs2{ (settings[s_cellThickness] - 60 * m_dxs1 - settings[s_filmThickness]) / (m_size - m_interfacePoint - m_Isize - 1) },
 	m_injectionBarrier{ settings[s_LUMO] - settings[s_negativeElectrodeWF] },
 	m_LUMO{ settings[s_LUMO] },
 	m_negativeElectrodeWF{ settings[s_negativeElectrodeWF] },
@@ -111,9 +112,8 @@ void DisCell::calculatePotentialProfile()
 	{
 		m_electrostatic[es_secondDerivative][i] = m_poissonConstantSolution * (-m_concentrations[carrier_electrons][i] + m_concentrations[carrier_cations][i] - m_concentrations[carrier_anions][i]);
 	}
-
 	double potAtReference{ 1.0 };
-	while (std::abs(potAtReference) > 0.0001) //typically takes 5 rounds, quite a lot but for now its ok
+	while (std::abs(potAtReference) > 0.0001) 
 	{
 		//electricFieldStart is the initial guess for a boundary condition because the real boundary conditions are impossible to apply directly (assumes that the potential drops linearly over the cell at the start)
 		//This boundary condition will then be updated based on the potential profile that is calculated
@@ -241,32 +241,8 @@ void DisCell::calculateCurrents()
 {
 	//electrons first, only up to the interface, using the current function to fill the current array
 	//the first step is the injection current
-/*
-	m_currents[carrier_electrons][1] = negativeCurrent(m_concentrations[carrier_electrons][0], m_concentrations[carrier_electrons][1],
-				m_currentConstantElectrons, m_electrostatic[es_electricField][0]);
-
-	for (array_type::size_type i{ m_interfacePoint - 20 }; i < m_interfacePoint; ++i)
-	{
-		m_currents[carrier_electrons][i] = negativeCurrentmax(m_concentrations[carrier_electrons][i - 1], m_concentrations[carrier_electrons][i],
-			m_currentConstantElectrons, m_electrostatic[es_electricField][i - 1], (1.5*m_concentrations[carrier_electrons][1]- m_concentrations[carrier_electrons][i]));
-	}
-
-*/
 	for (array_type::size_type i{ 1 }; i < m_interfacePoint -3; ++i)
 	{
-		/*
-		if (i == 10)
-		{
-			m_currents[carrier_electrons][i] = negativeCurrente(m_concentrations[carrier_electrons][i - 1], m_concentrations[carrier_electrons][i],
-				m_currentConstantElectrons, m_electrostatic[es_electricField][i - 1]-0.01/m_dxf, m_energyConvertxf);
-		}
-		else if (i == 15)
-		{
-			m_currents[carrier_electrons][i] = negativeCurrente(m_concentrations[carrier_electrons][i - 1], m_concentrations[carrier_electrons][i],
-				m_currentConstantElectrons, m_electrostatic[es_electricField][i - 1]+0.01/m_dxf, m_energyConvertxf);
-		}
-		else
-		*/
 		{
 			m_currents[carrier_electrons][i] = negativeCurrente(m_concentrations[carrier_electrons][i - 1], m_concentrations[carrier_electrons][i],
 				m_currentConstantElectrons, m_electrostatic[es_electricField][i - 1], m_energyConvertxf);
@@ -274,7 +250,7 @@ void DisCell::calculateCurrents()
 	}
 
 	//These lines prevent the simulation from crashing at nearly the end, when the extraction takes place. 
-	//They prevent the electron concetration from going under zero in near the interface during extraction.
+	//They prevent the electron concetration from going under zero near the interface during extraction.
 	if (m_currents[carrier_electrons][m_interfacePoint-4] < -m_concentrations[carrier_electrons][m_interfacePoint - 4]) 
 		m_currents[carrier_electrons][m_interfacePoint - 4] = -m_concentrations[carrier_electrons][m_interfacePoint - 4];
 
@@ -292,21 +268,15 @@ void DisCell::calculateCurrents()
 		}
 	}
 
-	//double cons{};
-	//double mod{};
 	//cations next, needs two different loops for the film and solution sections. Ions cannot enter the electrodes, so we dont need to consider the first and last cell
 	for (array_type::size_type i{ 2 }; i < m_interfacePoint - 3; ++i)
 	{
-		//cons = sqrt(m_concentrations[carrier_cations][i]/6e26 + 1e-10);
-		//mod = exp(-30 * ((cons) / (1 + cons) - 0.3 * m_concentrations[carrier_cations][i]/6e26));
 		m_currents[carrier_cations][i] = positiveCurrent(m_concentrations[carrier_cations][i - 1], m_concentrations[carrier_cations][i],
 			m_currentConstantCationsFilm, m_electrostatic[es_electricField][i - 1], m_energyConvertxf);
 	}
 
 	for (array_type::size_type i{ m_interfacePoint - 3 }; i < m_interfacePoint + 1; ++i)
 	{
-		//cons = sqrt(m_concentrations[carrier_cations][i]/6e26 + 1e-10);
-		//mod = exp(-30 * ((cons) / (1 + cons) - 0.3 * m_concentrations[carrier_cations][i]/6e26));
 		m_currents[carrier_cations][i] = positiveCurrent(m_concentrations[carrier_cations][i - 1], m_concentrations[carrier_cations][i],
 			m_currentConstantCationsFilm2, m_electrostatic[es_electricField][i - 1], m_energyConvertxs1);
 	}
@@ -326,16 +296,12 @@ void DisCell::calculateCurrents()
 	//the anions which are very similar to cations
 	for (array_type::size_type i{ 2 }; i < m_interfacePoint -3; ++i)
 	{
-		//cons = sqrt(m_concentrations[carrier_anions][i]/6e26+1e-10);
-		//mod = exp(-30 * ((cons) / (1 + cons) - 0.3 * m_concentrations[carrier_anions][i]/6e26));
 		m_currents[carrier_anions][i] = negativeCurrent(m_concentrations[carrier_anions][i - 1], m_concentrations[carrier_anions][i],
 			m_currentConstantAnionsFilm, m_electrostatic[es_electricField][i - 1], m_energyConvertxf);
 	}
 
 	for (array_type::size_type i{ m_interfacePoint-3 }; i < m_interfacePoint + 1; ++i)
 	{
-		//cons = sqrt(m_concentrations[carrier_anions][i]/6e26+1e-10);
-		//mod = exp(-30 * ((cons) / (1 + cons) - 0.3 * m_concentrations[carrier_anions][i]/6e26));
 		m_currents[carrier_anions][i] = negativeCurrent(m_concentrations[carrier_anions][i - 1], m_concentrations[carrier_anions][i],
 			m_currentConstantAnionsFilm2, m_electrostatic[es_electricField][i - 1], m_energyConvertxs1);
 	}
@@ -354,31 +320,6 @@ void DisCell::calculateCurrents()
 
 	//finally, we need to update the interface currents which we consider the current OVER the interface to be "slow"
 	//this means limited by the lower concentration in the film, so we use the solution concentration*QDfillfactor to reflect this
-
-	//SQRT implementation
-	//double catcur{ (sqrt(m_concentrations[carrier_cations][m_interfacePoint]* m_concentrations[carrier_cations][m_interfacePoint+1]* m_QDFillFactor) * m_electrostatic[es_electricField][m_interfacePoint] +
-	//	m_energyConvertxf * (m_concentrations[carrier_cations][m_interfacePoint] - m_concentrations[carrier_cations][m_interfacePoint+1] * m_QDFillFactor)) * m_currentConstantCationsFilm };
-	//m_currents[carrier_cations][m_interfacePoint+1] = (catcur < m_concentrations[carrier_cations][m_interfacePoint+1] ? catcur : m_concentrations[carrier_cations][m_interfacePoint+1]);
-	//if (m_currents[carrier_cations][m_interfacePoint] < (m_concentrations[carrier_cations][m_interfacePoint - 1] - 2e26))
-	//	m_currents[carrier_cations][m_interfacePoint] = (m_concentrations[carrier_cations][m_interfacePoint - 1] - 2e26);
-
-	//double ancur{ (-sqrt(m_concentrations[carrier_anions][m_interfacePoint] * m_concentrations[carrier_anions][m_interfacePoint + 1] * m_QDFillFactor) * m_electrostatic[es_electricField][m_interfacePoint] +
-	//	m_energyConvertxf * (m_concentrations[carrier_anions][m_interfacePoint] - m_concentrations[carrier_anions][m_interfacePoint+1] * m_QDFillFactor)) * m_currentConstantAnionsFilm };
-    //m_currents[carrier_anions][m_interfacePoint + 1] = (ancur < m_concentrations[carrier_anions][m_interfacePoint+1] ? ancur : m_concentrations[carrier_anions][m_interfacePoint+1]);
-
-	//BOLTZMANN implementation
-	//double catcur{ (m_concentrations[carrier_cations][m_interfacePoint] - m_concentrations[carrier_cations][m_interfacePoint+1] * m_QDFillFactor *
-	//												exp((m_electrostatic[es_potential][m_interfacePoint+1] - m_electrostatic[es_potential][m_interfacePoint]) / m_energyConvert))/10000 };
-	//m_currents[carrier_cations][m_interfacePoint+1] = (catcur < m_concentrations[carrier_cations][m_interfacePoint+1] ? catcur : m_concentrations[carrier_cations][m_interfacePoint+1]);
-	//double ancur{(m_concentrations[carrier_anions][m_interfacePoint] - m_concentrations[carrier_anions][m_interfacePoint+1] * m_QDFillFactor *
-	//												exp((m_electrostatic[es_potential][m_interfacePoint] - m_electrostatic[es_potential][m_interfacePoint+1]) / m_energyConvert))/10000 };
-	//m_currents[carrier_anions][m_interfacePoint+1] = (ancur < m_concentrations[carrier_anions][m_interfacePoint+1] ? ancur : m_concentrations[carrier_anions][m_interfacePoint+1]);
-
-
-	//double catcur{ (m_concentrations[carrier_cations][m_interfacePoint] * m_QDFillFactor * 3 * m_electrostatic[es_electricField][m_interfacePoint - 1] +
-	//	m_energyConvertx * (m_concentrations[carrier_cations][m_interfacePoint - 1] - m_concentrations[carrier_cations][m_interfacePoint] * m_QDFillFactor)) * m_currentConstantCationsFilm };
-	//m_currents[carrier_cations][m_interfacePoint] = (catcur < m_concentrations[carrier_cations][m_interfacePoint] ? catcur : m_concentrations[carrier_cations][m_interfacePoint]);
-
 	m_currents[carrier_cations][m_interfacePoint + 1] = positiveCurrent(m_concentrations[carrier_cations][m_interfacePoint], m_concentrations[carrier_cations][m_interfacePoint + 1] * m_QDFillFactor,
 		m_currentConstantCationsFilm2, m_electrostatic[es_electricField][m_interfacePoint], m_energyConvertxs1);
 	m_currents[carrier_anions][m_interfacePoint+1] = negativeCurrent(m_concentrations[carrier_anions][m_interfacePoint], m_concentrations[carrier_anions][m_interfacePoint + 1] * m_QDFillFactor,
@@ -387,7 +328,6 @@ void DisCell::calculateCurrents()
 
 	//update total electrons that have entered since the last getCurrent() call:
 	m_currentCumulative -= m_currents[carrier_electrons][1];
-
 }
 
 void DisCell::updateConcentrations()
@@ -430,7 +370,7 @@ void DisCell::changeBias(double vBiasChange)
 {
 	m_appliedBias += vBiasChange;
 	m_electrostatic[es_potential][0] += vBiasChange;
-} //increases the applied bias by vbuaschange
+} //increases the applied bias by vbiaschange
 
 void DisCell::resetInjection()
 {

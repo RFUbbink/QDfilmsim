@@ -78,7 +78,6 @@ public:
 	virtual void updateConcentrations();
 	void loadState();
 	void resetInjection();
-	void changeBias(double vbias);;
 	Cell& operator++();
 	Cell& operator--();
 	virtual void midSave(std::ofstream& midf);

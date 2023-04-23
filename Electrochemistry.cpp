@@ -19,7 +19,7 @@ Cell::Cell(settings_array& settings) //initialize all the constants necessary fo
 	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
-	m_size{ settings[s_amountOfCells] },
+	m_size{ static_cast<array_type::size_type>(settings[s_amountOfCells]) },
 	m_interfacePoint{ static_cast<array_type::size_type>(1 + static_cast<int>(m_size * settings[s_filmThickness] / settings[s_cellThickness])) },
 	m_referencePoint{ static_cast<array_type::size_type>(m_size * settings[s_refPosition] / settings[s_cellThickness]) },
 	m_referencePositionRelative{ settings[s_refPosition] / settings[s_cellThickness] },
@@ -246,31 +246,6 @@ void Cell::calculateCurrents()
 	//finally, we need to update the interface currents which we consider the current OVER the interface to be "slow"
 	//this means limited by the lower concentration in the film, so we use the solution concentration*QDfillfactor to reflect this
 	
-	//LN(C) implementation
-	//double catcur{ (sqrt(m_concentrations[carrier_cations][m_interfacePoint - 1] * m_concentrations[carrier_cations][m_interfacePoint] * m_QDFillFactor) * m_electrostatic[es_electricField][m_interfacePoint - 1] +
-	//	m_energyConvertx * (m_concentrations[carrier_cations][m_interfacePoint - 1] - m_concentrations[carrier_cations][m_interfacePoint] * m_QDFillFactor)) * m_currentConstantCationsFilm };
-	//m_currents[carrier_cations][m_interfacePoint] = (catcur < m_concentrations[carrier_cations][m_interfacePoint] ? catcur : m_concentrations[carrier_cations][m_interfacePoint]);
-	//if (m_currents[carrier_cations][m_interfacePoint] < (m_concentrations[carrier_cations][m_interfacePoint - 1] - (m_concentrations[carrier_electrons][1] + 5e25)))
-	//	m_currents[carrier_cations][m_interfacePoint] = (m_concentrations[carrier_cations][m_interfacePoint - 1] - (m_concentrations[carrier_electrons][1] + 5e25));
-	
-	//LN(A) implementation
-	//double ancur{ (-sqrt(m_concentrations[carrier_anions][m_interfacePoint - 1] * m_concentrations[carrier_anions][m_interfacePoint]) * m_electrostatic[es_electricField][m_interfacePoint - 1] +
-	//	m_energyConvertx * (m_concentrations[carrier_anions][m_interfacePoint - 1] - m_concentrations[carrier_anions][m_interfacePoint] * m_QDFillFactor)) * m_currentConstantAnionsFilm };
-	//m_currents[carrier_anions][m_interfacePoint] = (ancur < m_concentrations[carrier_anions][m_interfacePoint] ? ancur : m_concentrations[carrier_anions][m_interfacePoint]);
-	
-	//double catcur{ (m_concentrations[carrier_cations][m_interfacePoint] * m_QDFillFactor * 3 * m_electrostatic[es_electricField][m_interfacePoint - 1] +
-	//	m_energyConvertx * (m_concentrations[carrier_cations][m_interfacePoint - 1] - m_concentrations[carrier_cations][m_interfacePoint] * m_QDFillFactor)) * m_currentConstantCationsFilm };
-	//m_currents[carrier_cations][m_interfacePoint] = (catcur < m_concentrations[carrier_cations][m_interfacePoint] ? catcur : m_concentrations[carrier_cations][m_interfacePoint]);
-
-	//BOLTZMANN implementation
-	//double catcur{ (m_concentrations[carrier_cations][m_interfacePoint - 1] - m_concentrations[carrier_cations][m_interfacePoint] * m_QDFillFactor *
-	//												exp((m_electrostatic[es_potential][m_interfacePoint] - m_electrostatic[es_potential][m_interfacePoint - 1]) / m_energyConvert))/100000 };
-	//m_currents[carrier_cations][m_interfacePoint] = (catcur < m_concentrations[carrier_cations][m_interfacePoint] ? catcur : m_concentrations[carrier_cations][m_interfacePoint]);
-	//double ancur{(m_concentrations[carrier_anions][m_interfacePoint - 1] - m_concentrations[carrier_anions][m_interfacePoint] * m_QDFillFactor *
-	//												exp((m_electrostatic[es_potential][m_interfacePoint - 1] - m_electrostatic[es_potential][m_interfacePoint]) / m_energyConvert))/100000 };
-	//m_currents[carrier_anions][m_interfacePoint] = (ancur < m_concentrations[carrier_anions][m_interfacePoint] ? ancur : m_concentrations[carrier_anions][m_interfacePoint]);
-
-	//REGULAR DD implementation
 	m_currents[carrier_cations][m_interfacePoint] = positiveCurrent(m_concentrations[carrier_cations][m_interfacePoint - 1], m_concentrations[carrier_cations][m_interfacePoint] * m_QDFillFactor,
 		m_currentConstantCationsFilm, m_electrostatic[es_electricField][m_interfacePoint - 1]);
 	m_currents[carrier_anions][m_interfacePoint] = negativeCurrent(m_concentrations[carrier_anions][m_interfacePoint - 1], m_concentrations[carrier_anions][m_interfacePoint]*m_QDFillFactor,
@@ -331,12 +306,6 @@ void Cell::resetInjection() //Just to make sure the injection function functions
 	if (m_concentrations[carrier_electrons][1] < 1)
 		m_concentrations[carrier_electrons][1] = 1;
 }
-
-void Cell::changeBias(double vBiasChange) //legacy function, use the operators instead
-{
-	m_appliedBias += vBiasChange;
-	m_electrostatic[es_potential][0] += vBiasChange;
-} //increases the applied bias by vbiaschange
 
 Cell& Cell::operator++()
 {

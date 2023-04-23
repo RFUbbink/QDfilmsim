@@ -43,8 +43,8 @@ protected: //all the constants here are calculated from the config upon initiali
 	const array_type::size_type m_referencePoint{};			//the position of the refernce electrode in the array
 	const double m_referencePositionRelative{};				//reference postion/cellthickness, used in potential calculation
 	const double m_thickness{};
+	const double m_dxs1{};									//the size of a single cell of the Interface
 	const double m_dxf{};									//the size of a single cell of the film
-	const double m_dxs1{};									//the size of a single cell of the solution
 	const double m_dxs2{};									//the size of a single cell of the solution
 
 	//band

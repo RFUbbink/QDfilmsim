@@ -73,6 +73,7 @@ void runIV(T& cell, std::string saveDirectory)
 			std::cout << "Simulation crash (current isNaN)\n";
 			std::ofstream crashf{ saveDirectory + "\\crashfile.csv", std::ios::trunc };
 			cell.midSave(crashf);
+			return;
 		}
 		outf << settings[s_startVoltage] - settings[s_voltageIncrement]* ((V < (numberOfSteps / 2)) ? V : (numberOfSteps - V)) << '\t' << current / cyclesPerIncr << '\n';
 
@@ -108,7 +109,7 @@ void runIV(T& cell, std::string saveDirectory)
 
 template <typename T>
 void runCurrentTime(T& cell, std::string saveDirectory)
-{//Very similar to the runIV fucntion except that is does not increment the voltage but instead applies a constant votlage for the durration of the simulation. 
+{//Very similar to the runIV function except that is does not increment the voltage but instead applies a constant votlage for the durration of the simulation. 
 	long long int numberOfSteps{ static_cast<long long int>(settings[s_runTime] / settings[s_dt]) };	//the number of steps that are taken (factor 2 for forward/backward)
 	while (numberOfSteps % 100)
 		++numberOfSteps;
@@ -186,7 +187,6 @@ int main(int argc, char* argv[])
 	std::string saveDirectory(configLocation); //If no save directory is provided, default to saving at the config location. 
 	if (argv[1])
 		saveDirectory = std::string(argv[1]); //If save directory is provided, select it. 
-	std::cout << saveDirectory << '\n';
 	if (scanmode == ScanMode::m_IVcurve) //Select the operating mode
 	{
 		switch (mode) //Select the right object type
@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
 		case Mode::m_NoQDFilm:
 		{
 			NoFilmCell noFilmCell{ settings};//Ready to go, lets start the loop!
-			runIV<NoFilmCell>(noFilmCell, std::string(argv[0]));
+			runIV<NoFilmCell>(noFilmCell, saveDirectory);
 			break;
 		}
 		}
@@ -238,6 +238,8 @@ int main(int argc, char* argv[])
 
 	}
 	argc; //Throw argc away to avoid warnings
+	std::cout << "Press any key to exit.";
+	std::cin.get();
 	return 0;
 }
 

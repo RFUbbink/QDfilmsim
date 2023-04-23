@@ -34,6 +34,7 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	s_cellThickness,
 	s_amountOfCells,
 	s_amountofInterfaceCells,
+	s_interfaceResolution,
 	s_dt,
 	s_startVoltage,
 	s_stopVoltage,
