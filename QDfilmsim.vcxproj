@@ -147,25 +147,15 @@
   <ItemGroup>
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="Discontinuous.cpp" />
-    <ClCompile Include="DisOxGM.cpp" />
-    <ClCompile Include="DisXcon.cpp" />
     <ClCompile Include="Electrochemistry.cpp" />
     <ClCompile Include="NoFilm.cpp" />
-    <ClCompile Include="OxidationGM.cpp" />
     <ClCompile Include="QDfilmsim.cpp" />
-    <ClCompile Include="RIreaction.cpp" />
-    <ClCompile Include="Xcontamination.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config.h" />
     <ClInclude Include="Discontinuous.h" />
-    <ClInclude Include="DisOxGM.h" />
-    <ClInclude Include="DisXcon.h" />
     <ClInclude Include="Electrochemistry.h" />
     <ClInclude Include="NoFilm.h" />
-    <ClInclude Include="OxidationGM.h" />
-    <ClInclude Include="RIreaction.h" />
-    <ClInclude Include="Xcontamination.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

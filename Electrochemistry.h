@@ -24,15 +24,14 @@ protected: //all the constants here are calculated from the config upon initiali
 	array_type m_concentrations{};
 	array_type m_currents{};
 
-	double m_appliedBias{}; //appliedBias is the TOTAL potential drop over the entire system == the voltage difference between the working and counter electrode
-	double m_currentCumulative{}; //Current counter
+	double m_appliedBias{};									//appliedBias is the TOTAL potential drop over the entire system == the voltage difference between the working and counter electrode
+	double m_currentCumulative{};							//Current counter
 	double m_leakCurrentCumulative{}; 
 	const double m_voltageIncrement{}; 
-	double m_maximumIonConcentration{}; //lagacy parameter
-	double m_saltConcentration{}; //ion concentration in the electrolyte solution
+	double m_saltConcentration{};							//ion concentration in the electrolyte solution
 
 	//space
-	static const array_type::size_type m_size{ precompiled::amountOfCells }; 	//the size of the cell array
+	const array_type::size_type m_size{}; 					//the size of the cell array
 	const array_type::size_type m_interfacePoint{};			//the position of the film/solution interface in the array
 	const array_type::size_type m_referencePoint{};			//the position of the refernce electrode in the array
 	const double m_referencePositionRelative{};				//reference postion/cellthickness, used in potential calculation
@@ -41,7 +40,6 @@ protected: //all the constants here are calculated from the config upon initiali
 
 	//band
 	const double m_injectionBarrier{};						//the injection barrier for electrons
-	const double m_densityOfStates{};						//the effective density of states for electrons in the QD film
 	const double m_LUMO{};									//legacy constant I think, energy level of the CB edge
 	double m_negativeElectrodeWF{};							//Fermi level in the WE material = work function of that material
 	const double m_QDFillFactor{};							//the fraction of space that is filled by QD in the film, the rest is electrolyte
@@ -72,18 +70,14 @@ public:
 
 	virtual void injectElectrons(const DOS_array& DOS);
 	virtual void calculatePotentialProfile();
-	virtual void initializeConcentrations(double contaminantConcentration);
-	inline double injectionCurrent(const double concentrationElectrode, const double concentrationFilm);
+	virtual void initializeConcentrations();
 	inline double negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField);
 	inline double negativeCurrente(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField);
-	inline double negativeCurrentmax(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double maximum = 1e28);
 	inline double positiveCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField);
-	inline double positiveCurrentmax(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double maximum = 1e28);
 	virtual void calculateCurrents();
 	virtual void updateConcentrations();
 	void loadState();
 	void resetInjection();
-	void changeBias(double vbias);;
 	Cell& operator++();
 	Cell& operator--();
 	virtual void midSave(std::ofstream& midf);

@@ -34,23 +34,21 @@ protected: //all the constants here are calculated from the config upon initiali
 	double m_currentCumulative{};							//The amount of electrons that entered the film since the last time it was reported
 	double m_leakCurrentCumulative{};						//same for the leak electrons, not used that much
 	const double m_voltageIncrement{};						//amount the voltage is incremented every voltage step
-	double m_maximumIonConcentration{};						//Not used anymore
 	double m_saltConcentration{};							//concentration of cation and anions in the electrolyte solution at the start. 
 
 	//space
-	static const array_type::size_type m_size{ precompiled::amountOfCells }; 	//the size of the cell array
-	static const array_type::size_type m_Isize{ precompiled::InterfaceCells }; 	//the size of the interface
+	const array_type::size_type m_size{}; 					//the size of the cell array
+	const array_type::size_type m_Isize{}; 					//the size of the interface
 	const array_type::size_type m_interfacePoint{};			//the position of the film/solution interface in the array
 	const array_type::size_type m_referencePoint{};			//the position of the refernce electrode in the array
 	const double m_referencePositionRelative{};				//reference postion/cellthickness, used in potential calculation
 	const double m_thickness{};
+	const double m_dxs1{};									//the size of a single cell of the Interface
 	const double m_dxf{};									//the size of a single cell of the film
-	const double m_dxs1{};									//the size of a single cell of the solution
 	const double m_dxs2{};									//the size of a single cell of the solution
 
 	//band
 	const double m_injectionBarrier{};						//the injection barrier for electrons
-	const double m_densityOfStates{};						//the effective density of states for electrons in the QD film
 	const double m_LUMO{};									//LUMO of the QDs (not used as it is also in the DOS array)
 	double m_negativeElectrodeWF{};							//work function of the working electrode
 	const double m_QDFillFactor{};							//the fraction of space that is filled by QD in the film, the rest is electrolyte
@@ -85,7 +83,7 @@ public:
 
 	virtual void injectElectrons(const DOS_array& DOS);
 	virtual void calculatePotentialProfile();
-	virtual void initializeConcentrations(double contaminantConcentration);
+	virtual void initializeConcentrations();
 	inline double negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);
 	inline double negativeCurrente(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);
 	inline double positiveCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);

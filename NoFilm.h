@@ -39,7 +39,7 @@ protected: //all the constants here are calculated from the config upon initiali
 	double m_Xconcentration{};
 
 	//space
-	static const array_type::size_type m_size{ precompiled::amountOfCells }; 	//the size of the cell array
+	const array_type::size_type m_size{}; 	//the size of the cell array
 	const array_type::size_type m_referencePoint{};			//the position of the refernce electrode in the array
 	const double m_referencePositionRelative{};				//reference postion/cellthickness, used in potential calculation
 	const double m_thickness{};
@@ -69,7 +69,7 @@ public:
 	void resetInjection();
 	void injectElectrons(const DOS_array& DOS);
 	void calculatePotentialProfile();
-	void initializeConcentrations(double contaminantConcentration);
+	void initializeConcentrations();
 	inline double negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);
 	inline double neutralCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double eCon);
 	inline double positiveCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);
