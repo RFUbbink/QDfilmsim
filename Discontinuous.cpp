@@ -11,23 +11,24 @@
 using array_type = std::vector<std::vector<double>>;
 
 //This is the same class as Electrochemistry, but uses discontinuous space intervalls. 
-//Many functions are the same, so if not clear here there could be comments that clatiry them in Electrochemistry.cpp
+//Many functions are the same, so if not clear here there could be comments that clatify them in Electrochemistry.cpp
 
 DisCell::DisCell(settings_array& settings) //initialize all the constants necessary for operation, using settings array
 //vBias is the TOTAL potential drop over the entire system == the voltage difference between the working and counter electrode
 //an estimation of the initial voltage drop over the counterelectrode is made to calculate the initial Vb.
 	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
+	m_oldAppliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
 	m_size{ static_cast<array_type::size_type>(settings[s_amountOfCells]) },
 	m_Isize{ static_cast<array_type::size_type>(settings[s_amountofInterfaceCells]) },
-	m_interfacePoint{ static_cast<array_type::size_type>(30) },
-	m_referencePoint{ static_cast<array_type::size_type>(m_size-200) },
-	m_referencePositionRelative{ (settings[s_cellThickness] + settings[s_filmThickness]) / 2 / settings[s_cellThickness]},
+	m_interfacePoint{ static_cast<array_type::size_type>(settings[s_amountOfFilmCells]) },
+	m_referencePoint{ static_cast<array_type::size_type>(m_size - (m_size-m_interfacePoint-m_Isize)/2) }, //So reference distance in the config does nothing here
 	m_thickness{ settings[s_cellThickness] },
 	m_dxs1{ settings[s_interfaceResolution] * 1e-9},
 	m_dxf{ (settings[s_filmThickness] - 5 * m_dxs1) / (m_interfacePoint-5) }, 
-	m_dxs2{ (settings[s_cellThickness] - 60 * m_dxs1 - settings[s_filmThickness]) / (m_size - m_interfacePoint - m_Isize - 1) },
+	m_dxs2{ (settings[s_cellThickness] - m_Isize * m_dxs1 - settings[s_filmThickness]) / (m_size - m_interfacePoint - m_Isize - 1) },
+	m_referencePositionRelative{ (settings[s_cellThickness] - ((m_size - m_interfacePoint - m_Isize) / 2 - 1) * m_dxs2 ) / settings[s_cellThickness] },
 	m_injectionBarrier{ settings[s_LUMO] - settings[s_negativeElectrodeWF] },
 	m_LUMO{ settings[s_LUMO] },
 	m_negativeElectrodeWF{ settings[s_negativeElectrodeWF] },
@@ -37,7 +38,7 @@ DisCell::DisCell(settings_array& settings) //initialize all the constants necess
 	m_currentConstantElectrons2{ settings[s_electronMobility] * settings[s_dt] / m_dxs1 },
 	m_currentConstantCationsFilm{ settings[s_cationMobilityFilm] * settings[s_dt] / m_dxf },
 	m_currentConstantCationsFilm2{ settings[s_cationMobilityFilm] * settings[s_dt] / m_dxs1 },
-	//Weird quirk on where the mobility of ions is reduced when they near the interface
+	//Weird quirk on where the mobility of ions is reduced when they near the interface (in the interface region)
 	m_currentConstantCationsSolution1{ settings[s_cationMobilityFilm] * settings[s_dt] / m_dxs1 },
 	m_currentConstantCationsSolution2{ settings[s_cationMobilitySolution] * settings[s_dt] / m_dxs2 },
 	m_currentConstantAnionsFilm{ settings[s_anionMobilityFilm] * settings[s_dt] / m_dxf },
@@ -58,6 +59,7 @@ DisCell::DisCell(settings_array& settings) //initialize all the constants necess
 	m_concentrations = array_type(3, std::vector<double>(m_size));		//create the concentration array
 	m_currents = array_type(3, std::vector<double>(m_size));			//create the current array
 	std::cout << "Current interface resolution: " << m_dxs1*1e9 << " nm\n";
+	std::cout << "Electron averaging on!\nSlow mobility near interface on!\n";
 }
 
 double DisCell::getCurrent() //returns the electron current at a given time (measured in the first cell next to the negative electrode)
@@ -98,10 +100,10 @@ void DisCell::injectElectrons(const DOS_array& DOS)
 
 void DisCell::calculatePotentialProfile()
 {
-	//std::cout << m_dxf << '\n' << m_dxs1 << '\n' << m_dxs2 << '\n';
 	//This function takes in the reference to ePotentialArray, where the electrostatic potential profile and its 2 space derivates reside
-	//It updates the array directly based on the input and thus does not need to return any values. vBias is also updated live to speed up convergence in the next steps
-
+	//It updates the array directly based on the input and thus does not need to return any values. m_appliedBias is also updated live to speed up convergence in the next steps
+	m_newAppliedBias = (2 * m_appliedBias - m_oldAppliedBias); //This estimates the new applied bias based on linear extrapolation of the last two values. 
+	//It speeds up convergenge as it avoids one loop of applied bias calculations. New applied bias is still actually determined and updates, so errors dont compound 
 	//calculate the second space derivative of the electrostatic potential for every cell based on the Poisson equation
 	for (array_type::size_type i{ 1 }; i < m_interfacePoint + 1; ++i)
 	{
@@ -118,7 +120,7 @@ void DisCell::calculatePotentialProfile()
 		//electricFieldStart is the initial guess for a boundary condition because the real boundary conditions are impossible to apply directly (assumes that the potential drops linearly over the cell at the start)
 		//This boundary condition will then be updated based on the potential profile that is calculated
 		//This process is repeated untal a potential profile is generated that satisfies the real boundary conditions (pot at negative electrode == applied potential && pot at reference electrode == 0)
-		double electricFieldStart{ m_appliedBias / m_thickness };
+		double electricFieldStart{ m_newAppliedBias / m_thickness };
 		double differenceEF{ 1.0 };
 		double electricFieldIntegral{};
 		while (std::abs(differenceEF) > 0.00001) //typically takes 2 rounds, very good!
@@ -144,7 +146,7 @@ void DisCell::calculatePotentialProfile()
 			electricFieldIntegral = std::accumulate(m_electrostatic[es_electricField].begin(), m_electrostatic[es_electricField].begin() + m_interfacePoint-5, 0.0) * m_dxf;
 			electricFieldIntegral += std::accumulate(m_electrostatic[es_electricField].begin() + m_interfacePoint-5, m_electrostatic[es_electricField].begin() + m_interfacePoint + m_Isize, 0.0) * m_dxs1;
 			electricFieldIntegral += std::accumulate(m_electrostatic[es_electricField].begin() + m_interfacePoint + m_Isize, m_electrostatic[es_electricField].end(), 0.0) * m_dxs2;
-			differenceEF = (m_appliedBias - electricFieldIntegral) / m_appliedBias;
+			differenceEF = (m_newAppliedBias - electricFieldIntegral) / m_newAppliedBias;
 			//and apply the updated boundary condition for next round
 			electricFieldStart = electricFieldStart * (differenceEF + 1);
 		}
@@ -169,13 +171,110 @@ void DisCell::calculatePotentialProfile()
 		potAtReference = m_electrostatic[es_potential][m_referencePoint];
 		//and update the bias to reflect this for the next round
 		//divide by relative position of the refernce point (default 1.5) for fastest conversion
-		m_appliedBias += potAtReference / m_referencePositionRelative;
+		m_newAppliedBias += potAtReference / m_referencePositionRelative;
 	}
+	m_oldAppliedBias = m_appliedBias;
+	m_appliedBias = m_newAppliedBias; //Update the biases for the next round
+}
+
+void DisCell::inspectPotentialODE(std::ofstream& inspectionFile)
+{
+	//std::cout << m_dxf << '\n' << m_dxs1 << '\n' << m_dxs2 << '\n';
+	//This function takes in the reference to ePotentialArray, where the electrostatic potential profile and its 2 space derivates reside
+	//It updates the array directly based on the input and thus does not need to return any values. vBias is also updated live to speed up convergence in the next steps
+
+	inspectionFile << "-----Inspection of potential ODE started-----\n";
+	inspectionFile << "Current applied bias: " << m_electrostatic[es_potential][0] << '\n';
+	unsigned int totalOuterCycles{ 0 };
+	unsigned int totalInnerCycles{ 0 };
+
+	m_newAppliedBias = (2 * m_appliedBias - m_oldAppliedBias);
+	//calculate the second space derivative of the electrostatic potential for every cell based on the Poisson equation
+	for (array_type::size_type i{ 1 }; i < m_interfacePoint + 1; ++i)
+	{
+		m_electrostatic[es_secondDerivative][i] = m_poissonConstantFilm * (-m_concentrations[carrier_electrons][i] + m_concentrations[carrier_cations][i] - m_concentrations[carrier_anions][i]);
+	}
+
+	for (array_type::size_type i{ m_interfacePoint + 1 }; i < (m_size - 1); ++i)
+	{
+		m_electrostatic[es_secondDerivative][i] = m_poissonConstantSolution * (-m_concentrations[carrier_electrons][i] + m_concentrations[carrier_cations][i] - m_concentrations[carrier_anions][i]);
+	}
+	double potAtReference{ 1.0 };
+	while (std::abs(potAtReference) > 0.0001)
+	{
+		inspectionFile << "--Started outer cycle--\n";
+		totalOuterCycles++;
+		//electricFieldStart is the initial guess for a boundary condition because the real boundary conditions are impossible to apply directly (assumes that the potential drops linearly over the cell at the start)
+		//This boundary condition will then be updated based on the potential profile that is calculated
+		//This process is repeated untal a potential profile is generated that satisfies the real boundary conditions (pot at negative electrode == applied potential && pot at reference electrode == 0)
+		double electricFieldStart{ m_newAppliedBias / m_thickness };
+		double differenceEF{ 1.0 };
+		double electricFieldIntegral{};
+		while (std::abs(differenceEF) > 0.00001) //typically takes 2 rounds, very good!
+		{
+			inspectionFile << "--Started inner cycle--\n";
+			totalInnerCycles++;
+			m_electrostatic[es_electricField][0] = electricFieldStart; //apply guess boundary condition
+			for (array_type::size_type i{ 0 }; i < m_interfacePoint - 5; ++i) //build electric field sequentially using said boundary condition
+			{
+				m_electrostatic[es_electricField][i + 1] = m_electrostatic[es_electricField][i] - m_electrostatic[es_secondDerivative][i + 1] * m_dxf;
+			}
+
+
+			for (array_type::size_type i{ m_interfacePoint - 5 }; i < (m_interfacePoint + m_Isize); ++i) //build electric field sequentially using said boundary condition
+			{
+				m_electrostatic[es_electricField][i + 1] = m_electrostatic[es_electricField][i] - m_electrostatic[es_secondDerivative][i + 1] * m_dxs1;
+			}
+
+			for (array_type::size_type i{ m_interfacePoint + m_Isize }; i < (m_size - 2); ++i) //build electric field sequentially using said boundary condition
+			{
+				m_electrostatic[es_electricField][i + 1] = m_electrostatic[es_electricField][i] - m_electrostatic[es_secondDerivative][i + 1] * m_dxs2;
+			}
+
+			//check to see if real boundary condition is met (pot at negative elctrode == applied potential)
+			electricFieldIntegral = std::accumulate(m_electrostatic[es_electricField].begin(), m_electrostatic[es_electricField].begin() + m_interfacePoint - 5, 0.0) * m_dxf;
+			electricFieldIntegral += std::accumulate(m_electrostatic[es_electricField].begin() + m_interfacePoint - 5, m_electrostatic[es_electricField].begin() + m_interfacePoint + m_Isize, 0.0) * m_dxs1;
+			electricFieldIntegral += std::accumulate(m_electrostatic[es_electricField].begin() + m_interfacePoint + m_Isize, m_electrostatic[es_electricField].end(), 0.0) * m_dxs2;
+			differenceEF = (m_newAppliedBias - electricFieldIntegral) / m_newAppliedBias;
+			inspectionFile << "Difference between applied bias and integral Efield: " << differenceEF << '\n';
+			//and apply the updated boundary condition for next round
+			electricFieldStart = electricFieldStart * (differenceEF + 1);
+		}
+
+		for (array_type::size_type i{ 0 }; i < m_interfacePoint - 4; ++i) // update potential profile using the aquired electrid field
+		{
+			m_electrostatic[es_potential][i + 1] = m_electrostatic[es_potential][i] - m_electrostatic[es_electricField][i] * m_dxf;
+		}
+
+
+		for (array_type::size_type i{ m_interfacePoint - 4 }; i < (m_interfacePoint + m_Isize + 1); ++i) // update potential profile using the aquired electrid field
+		{
+			m_electrostatic[es_potential][i + 1] = m_electrostatic[es_potential][i] - m_electrostatic[es_electricField][i] * m_dxs1;
+		}
+
+		for (array_type::size_type i{ m_interfacePoint + m_Isize + 1 }; i < (m_size - 1); ++i) // update potential profile using the aquired electrid field
+		{
+			m_electrostatic[es_potential][i + 1] = m_electrostatic[es_potential][i] - m_electrostatic[es_electricField][i] * m_dxs2;
+		}
+
+		//check to see if real boundary condition is met (pot at reference electrode == 0)
+		potAtReference = m_electrostatic[es_potential][m_referencePoint];
+		inspectionFile << "Potential at reference electrode: " << potAtReference << '\n';
+		//and update the bias to reflect this for the next round
+		//divide by relative position of the refernce point (default 1.5) for fastest conversion
+		m_newAppliedBias += potAtReference / m_referencePositionRelative;
+
+
+	}
+	m_oldAppliedBias = m_appliedBias;
+	m_appliedBias = m_newAppliedBias; //Update the biases for the next round
+	inspectionFile << "Outer cycles: " << totalOuterCycles << '\n';
+	inspectionFile << "Inner cycles: " << totalInnerCycles << '\n';
+	inspectionFile << "-----End of this inspection-----\n\n\n";
 }
 
 void DisCell::initializeConcentrations()
 {
-	std::cout << "Electron averaging on!\nSlow mobility near interface on!\n";
 	//fills the concentration array with cations and anions
 	for (array_type::size_type i{ 1 }; i < m_interfacePoint + 1; ++i)
 	{
@@ -327,7 +426,7 @@ void DisCell::calculateCurrents()
 
 
 	//update total electrons that have entered since the last getCurrent() call:
-	m_currentCumulative -= m_currents[carrier_electrons][1];
+	m_currentCumulative -= m_currents[carrier_electrons][2] + m_currents[carrier_anions][2] - m_currents[carrier_cations][2];
 }
 
 void DisCell::updateConcentrations()

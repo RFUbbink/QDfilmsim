@@ -25,6 +25,8 @@ protected: //all the constants here are calculated from the config upon initiali
 	array_type m_currents{};
 
 	double m_appliedBias{};									//appliedBias is the TOTAL potential drop over the entire system == the voltage difference between the working and counter electrode
+	double m_oldAppliedBias{};								//Keeping track of the old applied bias allows us to predict the future, getting a beter estimate in the potential profile calculation
+	double m_newAppliedBias{};								//Just a variable to hold that new estimate when we need it
 	double m_currentCumulative{};							//Current counter
 	double m_leakCurrentCumulative{}; 
 	const double m_voltageIncrement{}; 
@@ -70,6 +72,7 @@ public:
 
 	virtual void injectElectrons(const DOS_array& DOS);
 	virtual void calculatePotentialProfile();
+	virtual void inspectPotentialODE(std::ofstream& inspectionFile);
 	virtual void initializeConcentrations();
 	inline double negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField);
 	inline double negativeCurrente(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField);

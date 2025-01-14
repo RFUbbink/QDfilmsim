@@ -33,13 +33,15 @@ protected: //all the constants here are calculated from the config upon initiali
 	array_type m_currents{};
 
 	double m_appliedBias{};
+	double m_oldAppliedBias{};								//Keeping track of the old applied bias allows us to predict the future, getting a beter estimate in the potential profile calculation
+	double m_newAppliedBias{};								//Just a variable to hold that new estimate when we need it
 	double m_currentCumulative{};
 	const double m_voltageIncrement{};
 	double m_saltConcentration{};
 	double m_Xconcentration{};
 
 	//space
-	const array_type::size_type m_size{}; 	//the size of the cell array
+	const array_type::size_type m_size{}; 					//the size of the cell array
 	const array_type::size_type m_referencePoint{};			//the position of the refernce electrode in the array
 	const double m_referencePositionRelative{};				//reference postion/cellthickness, used in potential calculation
 	const double m_thickness{};
@@ -49,7 +51,7 @@ protected: //all the constants here are calculated from the config upon initiali
 	const double m_E0{};
 
 	//speedy constants
-	const double m_currentConstantX{};				//these are all used in the calculation of the currents
+	const double m_currentConstantX{};						//these are all used in the calculation of the currents
 	const double m_currentConstantCations{};
 	const double m_currentConstantAnions{};
 	const double m_energyConvert{};
@@ -69,6 +71,7 @@ public:
 	void resetInjection();
 	void injectElectrons(const DOS_array& DOS);
 	void calculatePotentialProfile();
+	virtual void inspectPotentialODE(std::ofstream& inspectionFile);
 	void initializeConcentrations();
 	inline double negativeCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double electricField, const double eCon);
 	inline double neutralCurrent(const double concentrationLeft, const double concentrationRight, const double curCon, const double eCon);

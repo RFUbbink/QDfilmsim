@@ -18,6 +18,7 @@ enum class Mode //For the program to know which mode it should take. Each mode h
 {
 	m_standard,
 	m_discontinuous,
+	m_discontinuousSideReaction,
 	m_NoQDFilm,
 };
 
@@ -33,6 +34,7 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	s_refPosition,
 	s_cellThickness,
 	s_amountOfCells,
+	s_amountOfFilmCells,
 	s_amountofInterfaceCells,
 	s_interfaceResolution,
 	s_dt,
@@ -55,6 +57,13 @@ enum settings //enum that is used for sorting the data from the config file/arra
 	s_epsilonrSolution,
 	s_LUMO,
 	s_negativeElectrodeWF,
+	s_kineticsType,
+	s_contaminantConcentration,
+	s_contaminantMobilityFilm,
+	s_contaminantMobilitySolution,
+	s_BV_E0,
+	s_BV_k,
+	s_kIrriversible,
 	max_settings
 };
 
