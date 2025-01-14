@@ -3,6 +3,10 @@ Welcome to the QD film electrochemistry simulator source code.
 Good luck in traversing it! If you need help reading/learning coding concepts of C++, go to: learncpp.com. All the classes are explained in their corresponding HEADER files. 
 Some classes are legacy content, but I did not feel like taking them out in case they contained some usefull bits of code that I would need later.
 I will take you through the main function in comments. 
+To be honest, since the start of this project I have learned a lot more about coding and realized the code is not very good, but alas my time is limited and I cannot rewrite it now.
+Every simulation runs in an instance of one of the classes (NoFilm, Electrochemistry, Discontinuous and DisSideReaction, depending on what you need fot that simulation)
+These classes are controlled by functions runIV and runCurrentTime, which run the voltage program (either linear/cyclic voltage scan or constant voltage) and also handle the saving of the data.
+Why did I do it this way and not just make the class run the voltage program or just stick to functional programming only? BC I didn't know that would be better at the time.
 */
 
 #include <iostream>
@@ -15,6 +19,7 @@ I will take you through the main function in comments.
 #include <string>
 #include "Electrochemistry.h"
 #include "Discontinuous.h"
+#include "DisSideReaction.h"
 #include "NoFilm.h"
 #include "Config.h"
 
@@ -41,8 +46,10 @@ void runIV(T& cell, std::string saveDirectory)
 	const int numberOfSteps{ 2 * static_cast<int>(std::abs(settings[s_stopVoltage]
 										- settings[s_startVoltage]) / settings[s_voltageIncrement])};	//the number of steps that are taken (factor 2 for forward+backward)
 	
-	std::ofstream outf{ saveDirectory + "\\Outputcpp.csv", std::ios::trunc }; //set up some files for saving
-	std::string title{ saveDirectory + "\\Midfile0" };
+	//set up some files for saving
+	std::ofstream outf{ saveDirectory + "\\Outputcpp.csv", std::ios::trunc }; //Main output of voltage and current
+	std::string title{ saveDirectory + "\\Midfile0" }; //Output of simulation states throughout the sim
+	std::ofstream inspectionf{ saveDirectory + "\\inspectionFile.txt", std::ios::trunc}; //Output of how the ODE solver is converging throughout the sim, it should convert in 2 cycles now everytime.
 	int recordCounter{ 1 };
 
 	cell.initializeConcentrations(); 
@@ -64,6 +71,8 @@ void runIV(T& cell, std::string saveDirectory)
 			}
 			cell.calculateCurrents();
 			cell.updateConcentrations();
+			//if (!(t % 100))
+				//cell.midSave(inspectionf);
 		}
 		
 		double current{ cell.getCurrent() }; //record current density at the end of the voltage step (converted to A/cm2) 
@@ -93,6 +102,17 @@ void runIV(T& cell, std::string saveDirectory)
 			}
 			else
 				cell.midSave(midf);
+
+			//Now do an inspection, state should be the same as normally for a potential profile solve and the next solve should just be instant when it calls the actual funciton in the loop
+			
+			if (!inspectionf)
+			{
+				std::cerr << "inspectionFile.txt could not be opened for writing.\n";
+				continue;
+			}
+			else
+				cell.inspectPotentialODE(inspectionf);
+	
 		}
 
 		//manage the applied bias by incrementing
@@ -104,7 +124,7 @@ void runIV(T& cell, std::string saveDirectory)
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	std::cout << "\nTime elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << '\n';
+	std::cout << "\nTime elapsed: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << " ms\n";
 }
 
 template <typename T>
@@ -203,13 +223,37 @@ int main(int argc, char* argv[])
 			runIV<DisCell>(discontinuous, saveDirectory);
 			break;
 		}
+		case Mode::m_discontinuousSideReaction:
+		{
+			DOS_array reactionRates{}; //Load the reactionRates 
+			std::ifstream RRFile(configLocation + "ReactionRates.csv");
+			if (RRFile.is_open())
+			{
+				DOS_array::size_type index{ 0 };
+				while (RRFile)
+				{
+					RRFile >> reactionRates[index++];
+				}
+			}
+			else
+			{
+				std::cerr << "ReactionRates.csv could not be opened for writing.\n";
+				return 1;
+			}
+
+			DisSideReaction dissidereaction{ settings,reactionRates };
+			DisCell& discontinuous{ dissidereaction };
+			runIV<DisCell>(discontinuous, saveDirectory);
+			break;
+		}
 		case Mode::m_NoQDFilm:
 		{
-			NoFilmCell noFilmCell{ settings};//Ready to go, lets start the loop!
+			NoFilmCell noFilmCell{ settings };//Ready to go, lets start the loop!
 			runIV<NoFilmCell>(noFilmCell, saveDirectory);
 			break;
 		}
 		}
+
 	}
 
 	else if (scanmode == ScanMode::m_CurrentTime)
@@ -229,6 +273,29 @@ int main(int argc, char* argv[])
 			runCurrentTime<DisCell>(discontinuous, saveDirectory);
 			break;
 		}
+		case Mode::m_discontinuousSideReaction:
+		{
+			DOS_array reactionRates{}; //Load the reactionRates 
+			std::ifstream RRFile(configLocation + "ReactionRates.csv");
+			if (RRFile.is_open())
+			{
+				DOS_array::size_type index{ 0 };
+				while (RRFile)
+				{
+					RRFile >> reactionRates[index++];
+				}
+			}
+			else
+			{
+				std::cerr << "ReactionRates.csv could not be opened for writing.\n";
+				return 1;
+			}
+
+			DisSideReaction dissidereaction{ settings,reactionRates };
+			DisCell& discontinuous{ dissidereaction };
+			runIV<DisCell>(discontinuous, saveDirectory);
+			break;
+		}
 		default:
 		{
 			std::cerr << "Mode not yet implemented for current-time experiments!\n";
@@ -238,8 +305,6 @@ int main(int argc, char* argv[])
 
 	}
 	argc; //Throw argc away to avoid warnings
-	std::cout << "Press any key to exit.";
-	std::cin.get();
 	return 0;
 }
 

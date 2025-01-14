@@ -1,0 +1,364 @@
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.1
+Current applied bias: -4.27346
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 502.695
+--Started inner cycle--
+Difference between applied bias and integral Efield: -1.55544e-12
+Potential at reference electrode: 1.24883e-12
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.2
+Current applied bias: -10.8261
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 396.645
+--Started inner cycle--
+Difference between applied bias and integral Efield: 3.78697e-13
+Potential at reference electrode: -2.52031e-12
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.3
+Current applied bias: -115.715
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 54.7764
+--Started inner cycle--
+Difference between applied bias and integral Efield: -8.0317e-14
+Potential at reference electrode: -3.11211e-11
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.4
+Current applied bias: -1938.99
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 3.39332
+--Started inner cycle--
+Difference between applied bias and integral Efield: -3.63517e-15
+Potential at reference electrode: -4.22445e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.5
+Current applied bias: -7230.06
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 0.451235
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0
+Potential at reference electrode: -1.8932e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.6
+Current applied bias: -14482.7
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.140872
+--Started inner cycle--
+Difference between applied bias and integral Efield: -3.76792e-16
+Potential at reference electrode: -3.07619e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.7
+Current applied bias: -24593.1
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.415505
+--Started inner cycle--
+Difference between applied bias and integral Efield: -2.95854e-16
+Potential at reference electrode: 1.92521e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.8
+Current applied bias: -51857.9
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.686099
+--Started inner cycle--
+Difference between applied bias and integral Efield: 1.40306e-16
+Potential at reference electrode: -2.2237e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.9
+Current applied bias: -81610.6
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.776379
+--Started inner cycle--
+Difference between applied bias and integral Efield: 1.78309e-16
+Potential at reference electrode: -2.05772e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -1
+Current applied bias: -102136
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.802182
+--Started inner cycle--
+Difference between applied bias and integral Efield: -2.84952e-16
+Potential at reference electrode: 2.28962e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -1.1
+Current applied bias: -120708
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.816482
+--Started inner cycle--
+Difference between applied bias and integral Efield: -6.02775e-16
+Potential at reference electrode: 8.50647e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -1.2
+Current applied bias: -140599
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.828626
+--Started inner cycle--
+Difference between applied bias and integral Efield: 8.27994e-16
+Potential at reference electrode: 1.85973e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -1.3
+Current applied bias: -163135
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.840403
+--Started inner cycle--
+Difference between applied bias and integral Efield: -5.35211e-16
+Potential at reference electrode: 1.2303e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -1.3
+Current applied bias: -165959
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.841585
+--Started inner cycle--
+Difference between applied bias and integral Efield: -1.57831e-15
+Potential at reference electrode: 5.71634e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -1.2
+Current applied bias: -143604
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.830539
+--Started inner cycle--
+Difference between applied bias and integral Efield: -6.08001e-16
+Potential at reference electrode: 6.39842e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -1.1
+Current applied bias: -124139
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.819767
+--Started inner cycle--
+Difference between applied bias and integral Efield: -1.17223e-16
+Potential at reference electrode: -3.0421e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -1
+Current applied bias: -107269
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.809694
+--Started inner cycle--
+Difference between applied bias and integral Efield: -2.71317e-16
+Potential at reference electrode: -1.37158e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.9
+Current applied bias: -92555.7
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.800577
+--Started inner cycle--
+Difference between applied bias and integral Efield: 1.57223e-16
+Potential at reference electrode: -2.16144e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.8
+Current applied bias: -78592.3
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.789901
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0
+Potential at reference electrode: -1.48625e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.7
+Current applied bias: -53494.6
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.727149
+--Started inner cycle--
+Difference between applied bias and integral Efield: 5.44052e-16
+Potential at reference electrode: -5.69669e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.6
+Current applied bias: -26194.7
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.518302
+--Started inner cycle--
+Difference between applied bias and integral Efield: -2.77765e-16
+Potential at reference electrode: -3.60691e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.5
+Current applied bias: -11245.1
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0.0543716
+--Started inner cycle--
+Difference between applied bias and integral Efield: -0
+Potential at reference electrode: -2.69175e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.4
+Current applied bias: -3195.25
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 1.69105
+--Started inner cycle--
+Difference between applied bias and integral Efield: -1.13856e-15
+Potential at reference electrode: 6.78018e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.3
+Current applied bias: -471.736
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 12.6856
+--Started inner cycle--
+Difference between applied bias and integral Efield: -2.40997e-16
+Potential at reference electrode: -1.6873e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.2
+Current applied bias: -119.965
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 34.8873
+--Started inner cycle--
+Difference between applied bias and integral Efield: 1.55181e-14
+Potential at reference electrode: 3.11048e-09
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+
+-----Inspection of potential ODE started-----
+Current voltage at WE: -0.1
+Current applied bias: -38.1732
+--Started outer cycle--
+--Started inner cycle--
+Difference between applied bias and integral Efield: 55.3903
+--Started inner cycle--
+Difference between applied bias and integral Efield: -5.99359e-14
+Potential at reference electrode: 2.37843e-10
+Outer cycles: 1
+Inner cycles: 2
+-----End of this inspection-----
+
+

@@ -17,6 +17,7 @@ using array_type = std::vector<std::vector<double>>;
 Cell::Cell(settings_array& settings) //initialize all the constants necessary for operation, using settings array
 //an estimation of the initial voltage drop over the counterelectrode is made to calculate the initial appliedBias.
 	:m_appliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
+	m_oldAppliedBias{ settings[s_startVoltage] + settings[s_startVoltage] * settings[s_epsilonrFilm] / settings[s_epsilonrSolution] },
 	m_voltageIncrement{ settings[s_voltageIncrement] },
 	m_saltConcentration{ settings[s_ionConcentration] },
 	m_size{ static_cast<array_type::size_type>(settings[s_amountOfCells]) },
@@ -94,7 +95,7 @@ void Cell::calculatePotentialProfile() //This is the most critical function in t
 //I had to adapt the ODE so that it can apply the boundary conditions properly, and ended up doing this iterative approach. It typically can solve it in 4-6 iterations, but it may be more in the middle of the sim. 
 {
 	//calculate the second space derivative of the electrostatic potential for every cell based on the Poisson equation
-	
+	m_newAppliedBias = (2 * m_appliedBias - m_oldAppliedBias);
 	for (array_type::size_type i{ 1 }; i < m_interfacePoint; ++i)
 	{
 		m_electrostatic[es_secondDerivative][i] = m_poissonConstantFilm * (-m_concentrations[carrier_electrons][i] + m_concentrations[carrier_cations][i] - m_concentrations[carrier_anions][i]);
@@ -111,7 +112,7 @@ void Cell::calculatePotentialProfile() //This is the most critical function in t
 		//electricFieldStart is the initial guess for a boundary condition (assumes that the potential drops linearly over the cell at the start) because the real boundary conditions are impossible to apply directly 
 		//This boundary condition will then be updated based on the potential profile that is calculated
 		//This process is repeated untal a potential profile is generated that satisfies the real boundary conditions (pot at negative electrode == applied potential && pot at reference electrode == 0)
-		double electricFieldStart{ (m_appliedBias) / m_thickness };
+		double electricFieldStart{ m_newAppliedBias / m_thickness };
 		double differenceEF{ 1.0 };
 		double electricFieldIntegral{};
 		while (std::abs(differenceEF) > 0.00000001) //Speed depends a bit, ranging from 2-5 rounds
@@ -124,7 +125,7 @@ void Cell::calculatePotentialProfile() //This is the most critical function in t
 
 			//check to see if real boundary condition is met (pot at negative elctrode == applied potential)
 			electricFieldIntegral = std::accumulate(m_electrostatic[es_electricField].begin(), m_electrostatic[es_electricField].end(), 0.0) * m_dx;
-			differenceEF = (m_appliedBias - electricFieldIntegral) / (m_appliedBias);
+			differenceEF = (m_newAppliedBias - electricFieldIntegral) / (m_newAppliedBias);
 			//and apply the updated boundary condition for next round
 			electricFieldStart = electricFieldStart * (differenceEF + 1);
 		}
@@ -138,8 +139,77 @@ void Cell::calculatePotentialProfile() //This is the most critical function in t
 		potAtReference = m_electrostatic[es_potential][m_referencePoint];
 		//and update the bias to reflect this for the next round
 		//divide by relative position of the reference point (default 1.5) for fastest conversion
-		m_appliedBias += (potAtReference)/m_referencePositionRelative;
+		m_newAppliedBias += (potAtReference)/m_referencePositionRelative;
 	}
+	m_oldAppliedBias = m_appliedBias;
+	m_appliedBias = m_newAppliedBias; //Update the biases for the next round
+}
+
+void Cell::inspectPotentialODE(std::ofstream& inspectionFile) //This is the most critical function in the sim. It calculates the electrostatic potential by solving the Poisson equation. I could not use a normal ODE I think, but I may be wrong.
+//I had to adapt the ODE so that it can apply the boundary conditions properly, and ended up doing this iterative approach. It typically can solve it in 4-6 iterations, but it may be more in the middle of the sim. 
+{
+	//calculate the second space derivative of the electrostatic potential for every cell based on the Poisson equation
+	inspectionFile << "-----Inspection of potential ODE started-----\n";
+	inspectionFile << "Current applied bias: " << m_appliedBias << '\n';
+	unsigned int totalOuterCycles{ 0 };
+	unsigned int totalInnerCycles{ 0 };
+	m_newAppliedBias = (2 * m_appliedBias - m_oldAppliedBias);
+	for (array_type::size_type i{ 1 }; i < m_interfacePoint; ++i)
+	{
+		m_electrostatic[es_secondDerivative][i] = m_poissonConstantFilm * (-m_concentrations[carrier_electrons][i] + m_concentrations[carrier_cations][i] - m_concentrations[carrier_anions][i]);
+	}
+
+	for (array_type::size_type i{ m_interfacePoint }; i < (m_size - 1); ++i)
+	{
+		m_electrostatic[es_secondDerivative][i] = m_poissonConstantSolution * (-m_concentrations[carrier_electrons][i] + m_concentrations[carrier_cations][i] - m_concentrations[carrier_anions][i]);
+	}
+
+	double potAtReference{ 1.0 };
+	while (std::abs(potAtReference) > 0.0001) //typically takes 2 rounds, very good!
+	{
+		inspectionFile << "--Started outer cycle--\n";
+		totalOuterCycles++;
+		//electricFieldStart is the initial guess for a boundary condition (assumes that the potential drops linearly over the cell at the start) because the real boundary conditions are impossible to apply directly 
+		//This boundary condition will then be updated based on the potential profile that is calculated
+		//This process is repeated untal a potential profile is generated that satisfies the real boundary conditions (pot at negative electrode == applied potential && pot at reference electrode == 0)
+		double electricFieldStart{ m_newAppliedBias / m_thickness };
+		double differenceEF{ 1.0 };
+		double electricFieldIntegral{};
+		while (std::abs(differenceEF) > 0.00000001) //Speed depends a bit, ranging from 2-5 rounds
+		{
+			inspectionFile << "--Started inner cycle--\n";
+			totalInnerCycles++;
+			m_electrostatic[es_electricField][0] = electricFieldStart; //apply guess boundary condition
+			for (array_type::size_type i{ 0 }; i < (m_size - 2); ++i) //build electric field sequentially using said boundary condition
+			{
+				m_electrostatic[es_electricField][i + 1] = m_electrostatic[es_electricField][i] - m_electrostatic[es_secondDerivative][i + 1] * m_dx;
+			}
+
+			//check to see if real boundary condition is met (pot at negative elctrode == applied potential)
+			electricFieldIntegral = std::accumulate(m_electrostatic[es_electricField].begin(), m_electrostatic[es_electricField].end(), 0.0) * m_dx;
+			differenceEF = (m_appliedBias - electricFieldIntegral) / (m_appliedBias);
+			inspectionFile << "Difference between applied bias and integral Efield: " << differenceEF << '\n';
+			//and apply the updated boundary condition for next round
+			electricFieldStart = electricFieldStart * (differenceEF + 1);
+		}
+
+		for (array_type::size_type i{ 0 }; i < (m_size - 1); ++i) // update potential profile using the aquired electrid field
+		{
+			m_electrostatic[es_potential][i + 1] = m_electrostatic[es_potential][i] - m_electrostatic[es_electricField][i] * m_dx;
+		}
+
+		//check to see if real boundary condition is met (pot at reference electrode == 0)
+		potAtReference = m_electrostatic[es_potential][m_referencePoint];
+		inspectionFile << "Potential at reference electrode: " << potAtReference << '\n';
+		//and update the bias to reflect this for the next round
+		//divide by relative position of the reference point (default 1.5) for fastest conversion
+		m_appliedBias += (potAtReference) / m_referencePositionRelative;
+	}
+	m_oldAppliedBias = m_appliedBias;
+	m_appliedBias = m_newAppliedBias; //Update the biases for the next round
+	inspectionFile << "Outer cycles: " << totalOuterCycles << '\n';
+	inspectionFile << "Inner cycles: " << totalInnerCycles << '\n';
+	inspectionFile << "-----End of this inspection-----\n\n\n";
 }
 
 void Cell::initializeConcentrations()

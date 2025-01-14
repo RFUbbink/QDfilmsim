@@ -30,6 +30,9 @@
     <ClCompile Include="NoFilm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DisSideReaction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Electrochemistry.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NoFilm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DisSideReaction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

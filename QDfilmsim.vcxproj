@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="Discontinuous.cpp" />
+    <ClCompile Include="DisSideReaction.cpp" />
     <ClCompile Include="Electrochemistry.cpp" />
     <ClCompile Include="NoFilm.cpp" />
     <ClCompile Include="QDfilmsim.cpp" />
@@ -154,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="Config.h" />
     <ClInclude Include="Discontinuous.h" />
+    <ClInclude Include="DisSideReaction.h" />
     <ClInclude Include="Electrochemistry.h" />
     <ClInclude Include="NoFilm.h" />
   </ItemGroup>
